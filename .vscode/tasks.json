@@ -1,0 +1,40 @@
+{
+  // VS Code 菜单「终端 → 运行任务…」里选择下面的任务
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "1. 安装依赖（第一次运行前）",
+      "type": "shell",
+      "command": "npm install",
+      "problemMatcher": []
+    },
+    {
+      "label": "2. 启动 App（iPhone 用 Expo Go 扫码）",
+      "type": "shell",
+      "command": "npx expo start",
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "2b. 启动 App（手机连不上时用这个）",
+      "type": "shell",
+      "command": "npx expo start --tunnel",
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "3. 电脑浏览器预览",
+      "type": "shell",
+      "command": "npx expo start --web",
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "4. 代码检查（类型检查）",
+      "type": "shell",
+      "command": "npx tsc --noEmit",
+      "group": { "kind": "test", "isDefault": true },
+      "problemMatcher": "$tsc"
+    }
+  ]
+}
