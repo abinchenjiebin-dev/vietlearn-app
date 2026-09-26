@@ -1,13 +1,14 @@
 {
   "expo": {
-    "name": "VietLearn",
-    "slug": "VietLearn",
+    "name": "越南语学堂",
+    "slug": "vietlearn",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.abin.vietlearn"
     },
     "android": {
       "adaptiveIcon": {
@@ -19,7 +20,12 @@
       "predictiveBackGestureEnabled": false
     },
     "web": {
-      "favicon": "./assets/favicon.png"
-    }
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "scheme": "vietlearn",
+    "plugins": [
+      "expo-router"
+    ]
   }
 }
