@@ -73,11 +73,7 @@ src/
 
 ## 用 Python 预览网页版（不用装 Node）
 
-另有打包好的「越南语学堂-网页版」，解压后在文件夹里：
+用打包好的 `VietLearn-web.zip`：解压后用 VS Code 打开该文件夹，打开 `run.py` 点 ▶ 运行；
+或在终端里 `python run.py`（自测：`python run.py --test`）。不要直接双击 index.html。
 
-```bash
-python run.py          # 启动，自动打开浏览器
-python run.py --test   # 自测
-```
-
-自己重新生成网页版：`npx expo export --platform web --output-dir dist`，再把 `scripts/run_web.py` 复制到 `dist/run.py`。
+自己重新生成网页版：`node scripts/build-web.js`，输出在 `web-build/`。
