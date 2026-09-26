@@ -1,6 +1,8 @@
 import { useMemo } from 'react';
 import { StyleSheet, useColorScheme } from 'react-native';
 
+import { useSettings } from './lib/progress';
+
 // 配色：越南国旗的红与金为主色，浅色 / 深色两套，跟随系统切换
 const light = {
   bg: '#F8F4EE',
@@ -64,7 +66,8 @@ export const font = {
 
 export function useTheme() {
   const scheme = useColorScheme();
-  const isDark = scheme === 'dark';
+  const { appearance } = useSettings();
+  const isDark = appearance === 'system' ? scheme === 'dark' : appearance === 'dark';
   return useMemo(() => {
     const c = isDark ? dark : light;
     const shadow = isDark

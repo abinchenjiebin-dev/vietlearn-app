@@ -90,3 +90,30 @@ export function GradientFill({ from, to, radius = 0 }: { from: string; to: strin
     </View>
   );
 }
+
+/**
+ * 声调走势图（五度标调法，5 最高 1 最低，北方音）
+ * 顺序：平声 33、玄声 21、锐声 35、问声 313、跌声 3ʔ5、重声 21ʔ
+ */
+const TONE_PATHS: { d: string; stop?: [number, number] }[] = [
+  { d: 'M4 16 L52 16' },
+  { d: 'M4 19 C20 21, 36 25, 52 28' },
+  { d: 'M4 16 C20 15, 36 10, 52 4' },
+  { d: 'M4 16 C14 26, 26 30, 34 27 C42 24, 48 20, 52 18' },
+  { d: 'M4 16 L22 13 M30 13 L52 3' },
+  { d: 'M4 20 L30 28', stop: [30, 28] },
+];
+
+export function ToneCurve({ index, color, grid }: { index: number; color: string; grid: string }) {
+  const t = TONE_PATHS[index];
+  return (
+    <Svg width={56} height={32} viewBox="0 0 56 32">
+      {[4, 10, 16, 22, 28].map((y) => (
+        <Line key={y} x1="2" y1={y} x2="54" y2={y} stroke={grid} strokeWidth="0.8" />
+      ))}
+      <Path d={t.d} stroke={color} strokeWidth="3" strokeLinecap="round" fill="none" />
+      {t.stop && <Line x1={t.stop[0] + 3} y1={t.stop[1] - 5} x2={t.stop[0] + 3} y2={t.stop[1] + 3} stroke={color} strokeWidth="2.5" strokeLinecap="round" />}
+      {index === 4 && <Line x1="26" y1="9" x2="26" y2="17" stroke={color} strokeWidth="2" strokeLinecap="round" />}
+    </Svg>
+  );
+}

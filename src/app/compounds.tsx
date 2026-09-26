@@ -1,7 +1,8 @@
 import { useLocalSearchParams } from 'expo-router';
 import React, { useMemo, useState } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Pressable, ScrollView, View } from 'react-native';
 
+import { Text } from '../components/Text';
 import { Button, buzz, Card, Chip, Feedback, PressableScale, SpeakButton, tap } from '../components/ui';
 import { allCompounds, allSyllables, Compound, rootGroups } from '../data/compounds';
 import { useProgress } from '../lib/progress';

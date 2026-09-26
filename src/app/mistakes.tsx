@@ -1,8 +1,9 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router, type Href } from 'expo-router';
 import React from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Pressable, ScrollView, View } from 'react-native';
 
+import { Text } from '../components/Text';
 import { Button, Card, Empty, SectionTitle, SpeakButton, tap } from '../components/ui';
 import { wordByVi } from '../data';
 import { allCompounds } from '../data/compounds';

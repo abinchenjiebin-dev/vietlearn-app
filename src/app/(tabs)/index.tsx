@@ -1,13 +1,15 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { router } from 'expo-router';
+import { router, type Href } from 'expo-router';
 import React, { useEffect, useMemo, useState } from 'react';
-import { Platform, Pressable, ScrollView, Text, View } from 'react-native';
+import { Platform, Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { Text } from '../../components/Text';
 import { GradientFill, Lantern } from '../../components/Art';
 import { DailyDrill } from '../../components/DailyDrill';
 import { Card, Chip, PressableScale, ProgressRing, tap } from '../../components/ui';
 import { allWords } from '../../data';
+import { getTopic } from '../../data/topics';
 import { useProgress } from '../../lib/progress';
 import { findVietnameseVoice } from '../../lib/speech';
 import { NEW_PER_DAY } from '../../lib/srs';
@@ -34,6 +36,7 @@ export default function Home() {
   const learning = Object.keys(p.srs).length;
   const mistakes = Object.keys(p.mistakes).length;
   const pct = p.todayCount / p.goal;
+  const last = p.lastVisit ? getTopic(p.lastVisit.id) : undefined;
   const done = p.todayCount >= p.goal;
 
   const d = new Date();
@@ -47,6 +50,9 @@ export default function Home() {
             <Text style={s.date}>{dateText}</Text>
             <Text style={s.hello}>Xin chào! 👋</Text>
           </View>
+          <PressableScale onPress={() => router.push('/settings')} style={[s.searchBtn, { marginRight: 8 }]} accessibilityLabel="设置">
+            <Ionicons name="settings-outline" size={18} color={c.text} />
+          </PressableScale>
           <PressableScale onPress={() => router.push('/search')} style={s.searchBtn} accessibilityLabel="搜索">
             <Ionicons name="search" size={19} color={c.text} />
           </PressableScale>
@@ -92,6 +98,25 @@ export default function Home() {
               <Chip key={g} label={`${g} 次/天`} active={p.goal === g} onPress={() => { p.setGoal(g); setPickGoal(false); }} />
             ))}
           </View>
+        )}
+
+        {last && (
+          <PressableScale
+            onPress={() => router.push((p.lastVisit!.kind === 'cards' ? `/cards/${last.id}` : `/topic/${last.id}`) as Href)}
+            style={s.cont}
+            scaleTo={0.98}
+          >
+            <View style={[s.contIcon, { backgroundColor: last.color + '22' }]}>
+              <Text style={{ fontSize: 16 }}>{last.emoji}</Text>
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={s.contLabel}>继续学习</Text>
+              <Text style={s.contTitle}>
+                {last.zh} · {p.lastVisit!.kind === 'cards' ? '单词卡片' : '常用语'}
+              </Text>
+            </View>
+            <Ionicons name="play-circle" size={26} color={c.primary} />
+          </PressableScale>
         )}
 
         <View style={{ marginTop: 10 }}>
@@ -238,6 +263,25 @@ const makeStyles = ({ c, shadow }: Theme) => ({
   },
   streakText: { color: '#fff', fontWeight: '700' as const, fontSize: 11 },
   goalLink: { color: 'rgba(255,255,255,0.92)', fontSize: 11, fontWeight: '600' as const },
+  cont: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    backgroundColor: c.card,
+    borderRadius: radius.md,
+    padding: 10,
+    marginTop: 10,
+    ...shadow,
+  },
+  contIcon: {
+    width: 34,
+    height: 34,
+    borderRadius: 10,
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+    marginRight: 10,
+  },
+  contLabel: { fontSize: 11, color: c.sub },
+  contTitle: { fontSize: 14, fontWeight: '700' as const, color: c.text, marginTop: 1 },
   goalRow: { flexDirection: 'row' as const, marginTop: 10 },
   review: {
     flexDirection: 'row' as const,

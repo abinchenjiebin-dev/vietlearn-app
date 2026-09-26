@@ -1,8 +1,10 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
-import { Pressable, ScrollView, Text, useWindowDimensions, View } from 'react-native';
+import { Pressable, ScrollView, useWindowDimensions, View } from 'react-native';
 
+import { ToneCurve } from '../../components/Art';
+import { Text } from '../../components/Text';
 import { Card, Chip, PressableScale, SectionTitle, SpeakButton, TabHeader, tap } from '../../components/ui';
 import { clusters, consonants, Letter, vowels } from '../../data/alphabet';
 import { tones } from '../../data/topics';
@@ -66,11 +68,14 @@ export default function Pronounce() {
         })}
       </View>
 
-      <SectionTitle title="六个声调" sub="同一个 “ma”，声调不同，意思完全不同。点一行听一听。" />
+      <SectionTitle title="六个声调" sub="同一个 “ma”，声调不同，意思完全不同。曲线是音高走势（上高下低），点一行听一听。" />
       <Card style={{ paddingVertical: 4 }}>
         {tones.map((t, i) => (
           <Pressable key={t.vi} onPress={() => { tap(); speakVi(t.vi); }} style={[s.toneRow, i > 0 && s.divider]}>
             <Text style={s.toneVi}>{t.vi}</Text>
+            <View style={s.curve}>
+              <ToneCurve index={i} color={c.primary} grid={c.border} />
+            </View>
             <View style={{ flex: 1 }}>
               <Text style={s.toneName}>
                 {t.name} · <Text style={{ color: c.text }}>{t.zh}</Text>
@@ -134,7 +139,8 @@ const makeStyles = ({ c, shadow }: Theme) => ({
   example: { fontSize: 10, color: c.sub, marginTop: 1 },
   toneRow: { flexDirection: 'row' as const, alignItems: 'center' as const, paddingVertical: 9 },
   divider: { borderTopWidth: 1, borderTopColor: c.border },
-  toneVi: { fontSize: 22, fontWeight: '800' as const, color: c.primary, width: 50 },
+  toneVi: { fontSize: 22, fontWeight: '800' as const, color: c.primary, width: 46 },
+  curve: { marginRight: 10 },
   toneName: { fontSize: 12, color: c.sub, fontWeight: '600' as const },
   toneHint: { fontSize: 11, color: c.sub, marginTop: 1 },
   cta: {

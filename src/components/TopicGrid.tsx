@@ -1,8 +1,9 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router, type Href } from 'expo-router';
 import React from 'react';
-import { ScrollView, Text, View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 
+import { Text } from './Text';
 import { topics } from '../data/topics';
 import { useProgress } from '../lib/progress';
 import { font, radius, Theme, useStyles, useTheme } from '../theme';

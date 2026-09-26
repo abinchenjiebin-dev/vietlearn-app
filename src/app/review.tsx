@@ -1,7 +1,8 @@
 import { router } from 'expo-router';
 import React, { useEffect, useMemo, useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, Text, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
 
+import { Text } from '../components/Text';
 import { QuestionView } from '../components/quiz';
 import { Button, buzz, Card, Empty, ProgressBar, SpeakButton, tap } from '../components/ui';
 import { allWords, wordByVi, type Word } from '../data';
@@ -48,8 +49,8 @@ export default function Review() {
   const item = queue?.[done];
 
   useEffect(() => {
-    if (item?.stage === 'learn') speakVi(item.word.vi);
-  }, [item]);
+    if (p.autoPlay && item?.stage === 'learn') speakVi(item.word.vi);
+  }, [item, p.autoPlay]);
 
   if (!queue) return null;
 

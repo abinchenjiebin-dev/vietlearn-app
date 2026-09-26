@@ -1,7 +1,8 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import React, { useMemo, useState } from 'react';
-import { FlatList, Pressable, Text, TextInput, View } from 'react-native';
+import { FlatList, Pressable, View } from 'react-native';
 
+import { Text, TextInput } from '../components/Text';
 import { Chip, Empty, SpeakButton, tap } from '../components/ui';
 import { searchIndex, SearchItem } from '../data';
 import { getTopic } from '../data/topics';

@@ -30,7 +30,22 @@ type ProgressState = {
   goal: number;
   /** 每日一刷的题量 */
   drillSize: number;
+} & Settings & {
+  /** 上次学到的主题（首页“继续学习”） */
+  lastVisit: { kind: 'phrases' | 'cards'; id: string } | null;
 };
+
+export type Settings = {
+  /** 外观：跟随系统 / 浅色 / 深色 */
+  appearance: 'system' | 'light' | 'dark';
+  /** 单词卡片、复习新词出现时自动朗读 */
+  autoPlay: boolean;
+  speechRate: 'slow' | 'normal' | 'fast';
+  /** 文字大小倍数 */
+  textScale: number;
+};
+
+export const defaultSettings: Settings = { appearance: 'system', autoPlay: true, speechRate: 'normal', textScale: 1 };
 
 const initial: ProgressState = {
   known: [],
@@ -43,6 +58,8 @@ const initial: ProgressState = {
   activity: {},
   goal: 20,
   drillSize: 20,
+  ...defaultSettings,
+  lastVisit: null,
 };
 
 type Ctx = ProgressState & {
@@ -64,6 +81,9 @@ type Ctx = ProgressState & {
   tick: () => void;
   setGoal: (n: number) => void;
   setDrillSize: (n: number) => void;
+  updateSettings: (patch: Partial<Settings>) => void;
+  setLastVisit: (kind: 'phrases' | 'cards', id: string) => void;
+  /** 清空学习记录（设置保留） */
   reset: () => void;
 };
 
@@ -165,6 +185,12 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
+  const setLastVisit = useCallback(
+    (kind: 'phrases' | 'cards', id: string) =>
+      setState((s) => (s.lastVisit?.kind === kind && s.lastVisit.id === id ? s : { ...s, lastVisit: { kind, id } })),
+    [],
+  );
+
   const tick = useCallback(() => setState((s) => bump(s, dayKey())), []);
 
   const value = useMemo<Ctx>(() => {
@@ -192,9 +218,18 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
       tick,
       setGoal: (goal) => setState((s) => ({ ...s, goal })),
       setDrillSize: (drillSize) => setState((s) => ({ ...s, drillSize })),
-      reset: () => setState(initial),
+      updateSettings: (patch) => setState((s) => ({ ...s, ...patch })),
+      setLastVisit,
+      reset: () =>
+        setState((s) => ({
+          ...initial,
+          appearance: s.appearance,
+          autoPlay: s.autoPlay,
+          speechRate: s.speechRate,
+          textScale: s.textScale,
+        })),
     };
-  }, [state, loaded, today, setKnown, toggleFavorite, review, recordAnswer, removeMistake, tick]);
+  }, [state, loaded, today, setKnown, toggleFavorite, review, recordAnswer, removeMistake, tick, setLastVisit]);
 
   return <ProgressContext.Provider value={value}>{children}</ProgressContext.Provider>;
 }
@@ -203,4 +238,10 @@ export function useProgress() {
   const ctx = useContext(ProgressContext);
   if (!ctx) throw new Error('useProgress must be used inside ProgressProvider');
   return ctx;
+}
+
+/** 读取设置；在 ProgressProvider 外面调用时返回默认值 */
+export function useSettings(): Settings {
+  const ctx = useContext(ProgressContext);
+  return ctx ?? defaultSettings;
 }

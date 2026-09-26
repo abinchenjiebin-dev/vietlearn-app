@@ -17,7 +17,7 @@
         return;
       }
       // 地址是 App 自己的页面（/phrases、/quiz/meaning…）：网站根目录就是 App 所在位置，保留地址
-      var routes = /^\/(phrases|vocab|practice|pronounce|review|mistakes|search|quiz|compounds|sentences|topic|cards)(\/|$)/;
+      var routes = /^\/(phrases|vocab|practice|pronounce|review|mistakes|search|quiz|compounds|sentences|topic|cards|settings)(\/|$)/;
       var atRoute = routes.test(location.pathname);
       var dir = atRoute ? location.origin + '/' : location.href.replace(/[#?].*$/, '').replace(/[^/]*$/, '');
       var base = document.createElement('base');

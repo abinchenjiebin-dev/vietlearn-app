@@ -1,11 +1,13 @@
 // 答题组件：选择题、拼写、听辨声调（测验、每日一刷、智能复习共用）
 import Ionicons from '@expo/vector-icons/Ionicons';
 import React, { useEffect, useState } from 'react';
-import { Text, TextInput, View } from 'react-native';
+import { View } from 'react-native';
 
+import { Text, TextInput } from './Text';
 import { toneHints, toneNames } from '../data/alphabet';
 import type { Word } from '../data';
 import type { Question } from '../lib/quiz';
+import { useSettings } from '../lib/progress';
 import { speakVi } from '../lib/speech';
 import { plain, tidy } from '../lib/utils';
 import { font, radius, Theme, useStyles, useTheme } from '../theme';
@@ -22,11 +24,13 @@ export function Choice({ q, onAnswer }: { q: Extract<Question, { kind: 'choice' 
   const type = q.mode;
   const s = useStyles(makeStyles);
   const { c } = useTheme();
+  const { autoPlay } = useSettings();
   const [picked, setPicked] = useState<number | null>(null);
 
   useEffect(() => {
-    if (type !== 'meaning') speakVi(q.word.vi);
-  }, [q, type]);
+    // 听音题必须播放；看越南语选中文按“自动朗读”设置
+    if (type === 'listen' || (type === 'vi2zh' && autoPlay)) speakVi(q.word.vi);
+  }, [q, type, autoPlay]);
 
   const state = (i: number): OptionState => {
     if (picked === null) return 'idle';

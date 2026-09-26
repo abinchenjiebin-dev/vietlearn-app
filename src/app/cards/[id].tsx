@@ -1,9 +1,11 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router, Stack, useLocalSearchParams, type Href } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { Animated, Pressable, ScrollView, Text, View } from 'react-native';
+import { Animated, Pressable, ScrollView, View } from 'react-native';
 
+import { Text } from '../../components/Text';
 import { Button, Chip, native, PressableScale, ProgressBar, SpeakButton, tap } from '../../components/ui';
+import { allPhrases } from '../../data';
 import { getTopic, topics } from '../../data/topics';
 import { useProgress } from '../../lib/progress';
 import { speakVi } from '../../lib/speech';
@@ -11,6 +13,12 @@ import { shuffle } from '../../lib/utils';
 import { radius, Theme, useStyles, useTheme } from '../../theme';
 
 type Mode = 'vi2zh' | 'zh2vi';
+
+/** 从常用语里找含这个词的句子（按整个词匹配），最多 2 句 */
+function findExamples(vi: string) {
+  const key = ` ${vi.toLowerCase()} `;
+  return allPhrases.filter((p) => ` ${p.vi.toLowerCase().replace(/[.,!?]/g, '')} `.includes(key)).slice(0, 2);
+}
 
 /** 某个主题的单词卡片 */
 export default function Cards() {
@@ -20,18 +28,22 @@ export default function Cards() {
   const [index, setIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [cards, setCards] = useState(topic.words);
-  const { isKnown, setKnown } = useProgress();
+  const { isKnown, setKnown, autoPlay, setLastVisit } = useProgress();
   const s = useStyles(makeStyles);
   const { c } = useTheme();
   const turn = useState(() => new Animated.Value(0))[0];
 
   const card = cards[Math.min(index, cards.length - 1)];
   const knownCount = topic.words.filter((w) => isKnown(w.vi)).length;
+  const examples = findExamples(card.vi);
 
-  // 越南语朝上时自动朗读
+  // 越南语朝上时自动朗读（设置里可以关）
   useEffect(() => {
-    if (mode === 'vi2zh' && card) speakVi(card.vi);
-  }, [card, mode]);
+    if (autoPlay && mode === 'vi2zh' && card) speakVi(card.vi);
+  }, [card, mode, autoPlay]);
+
+  // 记住上次学到这里（首页“继续学习”）
+  useEffect(() => setLastVisit('cards', topic.id), [setLastVisit, topic.id]);
 
   const reset = () => {
     setFlipped(false);
@@ -121,6 +133,21 @@ export default function Cards() {
         </PressableScale>
       </View>
 
+      {examples.length > 0 && (
+        <View style={s.examples}>
+          <Text style={s.exTitle}>例句</Text>
+          {examples.map((e) => (
+            <Pressable key={e.vi} onPress={() => { tap(); speakVi(e.vi); }} style={s.exRow}>
+              <View style={{ flex: 1 }}>
+                <Text style={s.exVi}>{e.vi}</Text>
+                <Text style={s.exZh}>{e.zh}</Text>
+              </View>
+              <Ionicons name="volume-medium-outline" size={16} color={c.faint} />
+            </Pressable>
+          ))}
+        </View>
+      )}
+
       <PressableScale onPress={() => router.push(`/quiz/meaning?topic=${topic.id}` as Href)} style={s.quiz} scaleTo={0.98}>
         <Ionicons name="school-outline" size={18} color={c.primary} />
         <Text style={s.quizText}>测验这个主题（10 题）</Text>
@@ -174,6 +201,11 @@ const makeStyles = ({ c, shadow }: Theme) => ({
     borderWidth: 1,
     borderColor: c.border,
   },
+  examples: { backgroundColor: c.card, borderRadius: radius.md, paddingHorizontal: 12, paddingVertical: 8, marginTop: 12, ...shadow },
+  exTitle: { fontSize: 11, color: c.faint, fontWeight: '600' as const, marginBottom: 2 },
+  exRow: { flexDirection: 'row' as const, alignItems: 'center' as const, paddingVertical: 6 },
+  exVi: { fontSize: 14, fontWeight: '600' as const, color: c.text },
+  exZh: { fontSize: 12, color: c.sub, marginTop: 1 },
   quiz: {
     flexDirection: 'row' as const,
     alignItems: 'center' as const,

@@ -5,6 +5,7 @@ import { Platform, type ColorValue, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppBackground } from '../../components/Art';
+import { FONT } from '../../components/Text';
 import { IconName } from '../../components/ui';
 import { useTheme } from '../../theme';
 
@@ -44,7 +45,7 @@ export default function TabLayout() {
         headerShown: false,
         tabBarActiveTintColor: c.primary,
         tabBarInactiveTintColor: c.faint,
-        tabBarLabelStyle: { fontSize: 10, fontWeight: '600', marginTop: 3 },
+        tabBarLabelStyle: { fontSize: 11, fontFamily: FONT[600], fontWeight: Platform.OS === 'android' ? 'normal' : '600', marginTop: 3 },
         tabBarItemStyle: { paddingTop: 6 },
         sceneStyle: { backgroundColor: c.bg },
         tabBarStyle: {

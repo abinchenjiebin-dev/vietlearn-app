@@ -20,16 +20,50 @@ export async function findVietnameseVoice(): Promise<boolean> {
   }
 }
 
+let rateScale = 1;
+let wordRun = 0;
+
+/** 设置里的语速：慢 / 正常 / 快 */
+export function setSpeechRate(rate: 'slow' | 'normal' | 'fast') {
+  rateScale = rate === 'slow' ? 0.8 : rate === 'fast' ? 1.18 : 1;
+}
+
 /** 用越南语朗读。slow=true 时放慢语速，方便跟读 */
 export async function speakVi(text: string, slow = false) {
   if (!voiceChecked) await findVietnameseVoice();
+  wordRun++;
   await Speech.stop();
   Speech.speak(text, {
     language: 'vi-VN',
     voice: viVoiceId,
-    rate: slow ? 0.55 : 0.9,
+    rate: (slow ? 0.55 : 0.9) * rateScale,
     pitch: 1.0,
   });
+}
+
+/** 逐词朗读：一个词读完再读下一个，onWord 告诉界面正在读第几个词（-1 表示结束） */
+export async function speakWords(words: string[], onWord: (i: number) => void) {
+  if (!voiceChecked) await findVietnameseVoice();
+  const run = ++wordRun;
+  await Speech.stop();
+  const next = (i: number) => {
+    if (run !== wordRun) return; // 被新的朗读打断
+    if (i >= words.length) return onWord(-1);
+    onWord(i);
+    Speech.speak(words[i], {
+      language: 'vi-VN',
+      voice: viVoiceId,
+      rate: 0.75 * rateScale,
+      onDone: () => {
+        setTimeout(() => next(i + 1), 180);
+      },
+      onStopped: () => {
+        if (run === wordRun) onWord(-1);
+      },
+      onError: () => onWord(-1),
+    });
+  };
+  next(0);
 }
 
 export function stopSpeaking() {

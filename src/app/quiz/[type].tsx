@@ -1,7 +1,8 @@
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useMemo, useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, Text, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
 
+import { Text } from '../../components/Text';
 import { QuestionView } from '../../components/quiz';
 import { Button, buzz, Empty, ProgressBar } from '../../components/ui';
 import { allWords, wordByVi, type Word } from '../../data';

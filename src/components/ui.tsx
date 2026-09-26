@@ -2,20 +2,11 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import {
-  Animated,
-  Platform,
-  Pressable,
-  PressableProps,
-  StyleProp,
-  StyleSheet,
-  Text,
-  View,
-  ViewStyle,
-} from 'react-native';
+import { Animated, Platform, Pressable, PressableProps, StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Circle } from 'react-native-svg';
 
+import { Text } from './Text';
 import { speakVi } from '../lib/speech';
 import { font, radius, useStyles, useTheme, type Theme } from '../theme';
 
@@ -252,8 +243,24 @@ export function TabHeader({ title }: { title: string }) {
   return (
     <View style={[s.tabHeader, { paddingTop: insets.top + 8 }]}>
       <Text style={s.tabTitle}>{title}</Text>
+      <SettingsButton />
       <SearchButton />
     </View>
+  );
+}
+
+/** 标题栏右上角的设置按钮 */
+export function SettingsButton() {
+  const { c } = useTheme();
+  return (
+    <Pressable
+      accessibilityLabel="设置"
+      hitSlop={10}
+      onPress={() => router.push('/settings')}
+      style={({ pressed }) => ({ paddingLeft: 8, opacity: pressed ? 0.5 : 1 })}
+    >
+      <Ionicons name="settings-outline" size={21} color={c.text} />
+    </Pressable>
   );
 }
 

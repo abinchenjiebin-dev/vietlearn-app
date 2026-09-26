@@ -1,8 +1,9 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router, type Href } from 'expo-router';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
+import { Text } from './Text';
 import { useProgress } from '../lib/progress';
 import { DRILL_SIZES } from '../lib/quiz';
 import { font, radius, Theme, useStyles, useTheme } from '../theme';
