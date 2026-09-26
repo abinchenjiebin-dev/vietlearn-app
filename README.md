@@ -70,3 +70,14 @@ src/
 - 新增拼句题：在 `src/data/sentences.ts` 里加，`tokens` 按正确顺序写。
 
 内容以北部（河内）标准越南语为主，南方常用说法在备注里标出。
+
+## 用 Python 预览网页版（不用装 Node）
+
+另有打包好的「越南语学堂-网页版」，解压后在文件夹里：
+
+```bash
+python run.py          # 启动，自动打开浏览器
+python run.py --test   # 自测
+```
+
+自己重新生成网页版：`npx expo export --platform web --output-dir dist`，再把 `scripts/run_web.py` 复制到 `dist/run.py`。

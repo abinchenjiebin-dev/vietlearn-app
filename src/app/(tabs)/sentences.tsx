@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { Button, Card, SpeakButton, tap } from '../../components/ui';
@@ -18,7 +18,9 @@ const decap = (t: string) => (PROPER.includes(t) ? t : t.charAt(0).toLowerCase()
 const cap = (t: string) => t.charAt(0).toUpperCase() + t.slice(1);
 
 export default function Sentences() {
-  const [order, setOrder] = useState(() => shuffle(sentences.map((_, i) => i)));
+  // 先用固定顺序渲染，挂载后再打乱（避免网页版服务端/客户端渲染不一致）
+  const [order, setOrder] = useState(() => sentences.map((_, i) => i));
+  useEffect(() => setOrder(shuffle(sentences.map((_, i) => i))), []);
   const [pos, setPos] = useState(0);
   const [picked, setPicked] = useState<Tile[]>([]);
   const [result, setResult] = useState<'right' | 'wrong' | null>(null);
@@ -28,13 +30,16 @@ export default function Sentences() {
   const s = sentences[order[pos]];
 
   // 词块 = 正确词语 + 2 个干扰词，打乱顺序
-  const tiles = useMemo<Tile[]>(() => {
+  const [tiles, setTiles] = useState<Tile[]>([]);
+  useEffect(() => {
     const own = s.tokens.map(norm);
     const distractors = pickRandom(
       allTokens.filter((t) => !own.includes(norm(t))),
       2,
     );
-    return shuffle([decap(s.tokens[0]), ...s.tokens.slice(1), ...distractors.map(decap)]).map((text, id) => ({ id, text }));
+    setTiles(
+      shuffle([decap(s.tokens[0]), ...s.tokens.slice(1), ...distractors.map(decap)]).map((text, id) => ({ id, text })),
+    );
   }, [s]);
 
   const next = () => {
