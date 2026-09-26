@@ -1,7 +1,14 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
-const KEY = 'vietlearn.progress.v1';
+import { Grade, schedule, SrsCard } from './srs';
+import { addDays, dayKey } from './utils';
+
+const KEY = 'vietlearn.progress.v2';
+const OLD_KEY = 'vietlearn.progress.v1';
+
+export type MistakeKind = 'word' | 'sentence' | 'compound';
+export type Mistake = { kind: MistakeKind; id: string; count: number; at: string };
 
 type ProgressState = {
   /** 已掌握的词汇（越南语原文） */
@@ -11,47 +18,120 @@ type ProgressState = {
   /** 组词、组句子答对次数 */
   compoundCorrect: number;
   sentenceCorrect: number;
+  /** 智能复习：每个词的复习计划 */
+  srs: Record<string, SrsCard>;
+  /** 今天已经开始学的新词数 */
+  newToday: { day: string; count: number };
+  /** 错题本，key = kind:id */
+  mistakes: Record<string, Mistake>;
+  /** 每天完成的练习次数 */
+  activity: Record<string, number>;
+  /** 每日目标（次） */
+  goal: number;
+  /** 每日一刷的题量 */
+  drillSize: number;
 };
 
-const initial: ProgressState = { known: [], favorites: [], compoundCorrect: 0, sentenceCorrect: 0 };
+const initial: ProgressState = {
+  known: [],
+  favorites: [],
+  compoundCorrect: 0,
+  sentenceCorrect: 0,
+  srs: {},
+  newToday: { day: '', count: 0 },
+  mistakes: {},
+  activity: {},
+  goal: 20,
+  drillSize: 20,
+};
 
 type Ctx = ProgressState & {
+  loaded: boolean;
+  today: string;
+  todayCount: number;
+  streak: number;
+  newLeftToday: (limit: number) => number;
   isKnown: (vi: string) => boolean;
   setKnown: (vi: string, known: boolean) => void;
   isFavorite: (vi: string) => boolean;
   toggleFavorite: (vi: string) => void;
-  addCompoundCorrect: () => void;
-  addSentenceCorrect: () => void;
+  /** 智能复习打分 */
+  review: (vi: string, grade: Grade) => void;
+  /** 记录一次答题：答错进错题本，答对从错题本里减掉 */
+  recordAnswer: (kind: MistakeKind, id: string, correct: boolean) => void;
+  removeMistake: (kind: MistakeKind, id: string) => void;
+  /** 只记一次练习（不进错题本） */
+  tick: () => void;
+  setGoal: (n: number) => void;
+  setDrillSize: (n: number) => void;
   reset: () => void;
 };
 
 const ProgressContext = createContext<Ctx | null>(null);
 
+const mkey = (kind: MistakeKind, id: string) => `${kind}:${id}`;
+
+function bump(s: ProgressState, today: string): ProgressState {
+  return { ...s, activity: { ...s.activity, [today]: (s.activity[today] ?? 0) + 1 } };
+}
+
+function withMistake(s: ProgressState, kind: MistakeKind, id: string, correct: boolean, today: string) {
+  const k = mkey(kind, id);
+  const m = s.mistakes[k];
+  if (correct) {
+    if (!m) return s;
+    const rest = { ...s.mistakes };
+    if (m.count <= 1) delete rest[k];
+    else rest[k] = { ...m, count: m.count - 1 };
+    return { ...s, mistakes: rest };
+  }
+  // 答错一次记 2 分，需要再答对 2 次才会移出错题本
+  return { ...s, mistakes: { ...s.mistakes, [k]: { kind, id, count: Math.min((m?.count ?? 0) + 2, 4), at: today } } };
+}
+
+function withReview(s: ProgressState, vi: string, grade: Grade, today: string): ProgressState {
+  const isNew = !s.srs[vi];
+  const card = schedule(s.srs[vi], grade, today);
+  const newToday =
+    isNew ? { day: today, count: (s.newToday.day === today ? s.newToday.count : 0) + 1 } : s.newToday;
+  let next: ProgressState = { ...s, srs: { ...s.srs, [vi]: card }, newToday };
+  next = withMistake(next, 'word', vi, grade !== 'again', today);
+  // 间隔达到 21 天算“已掌握”
+  const known = new Set(next.known);
+  if (card.interval >= 21) known.add(vi);
+  if (grade === 'again') known.delete(vi);
+  return { ...next, known: [...known] };
+}
+
 export function ProgressProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<ProgressState>(initial);
   const [loaded, setLoaded] = useState(false);
+  const [today, setToday] = useState(dayKey);
 
   useEffect(() => {
-    AsyncStorage.getItem(KEY)
-      .then((raw) => {
+    (async () => {
+      try {
+        const raw = (await AsyncStorage.getItem(KEY)) ?? (await AsyncStorage.getItem(OLD_KEY));
         if (raw) setState({ ...initial, ...JSON.parse(raw) });
-      })
-      .catch(() => {})
-      .finally(() => setLoaded(true));
+      } catch {}
+      setLoaded(true);
+    })();
   }, []);
 
   useEffect(() => {
     if (loaded) AsyncStorage.setItem(KEY, JSON.stringify(state)).catch(() => {});
   }, [state, loaded]);
 
-  const setKnown = useCallback((vi: string, known: boolean) => {
-    setState((s) => {
-      const set = new Set(s.known);
-      if (known) set.add(vi);
-      else set.delete(vi);
-      return { ...s, known: [...set] };
-    });
+  // App 开着跨过午夜时更新“今天”
+  useEffect(() => {
+    const id = setInterval(() => setToday(dayKey()), 60_000);
+    return () => clearInterval(id);
   }, []);
+
+  const setKnown = useCallback(
+    (vi: string, known: boolean) => setState((s) => bump(withReview(s, vi, known ? 'good' : 'again', dayKey()), dayKey())),
+    [],
+  );
 
   const toggleFavorite = useCallback((vi: string) => {
     setState((s) => {
@@ -62,19 +142,59 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
-  const value = useMemo<Ctx>(
-    () => ({
+  const review = useCallback(
+    (vi: string, grade: Grade) => setState((s) => bump(withReview(s, vi, grade, dayKey()), dayKey())),
+    [],
+  );
+
+  const recordAnswer = useCallback((kind: MistakeKind, id: string, correct: boolean) => {
+    setState((s) => {
+      const t = dayKey();
+      let next = bump(withMistake(s, kind, id, correct, t), t);
+      if (correct && kind === 'compound') next = { ...next, compoundCorrect: next.compoundCorrect + 1 };
+      if (correct && kind === 'sentence') next = { ...next, sentenceCorrect: next.sentenceCorrect + 1 };
+      return next;
+    });
+  }, []);
+
+  const removeMistake = useCallback((kind: MistakeKind, id: string) => {
+    setState((s) => {
+      const rest = { ...s.mistakes };
+      delete rest[mkey(kind, id)];
+      return { ...s, mistakes: rest };
+    });
+  }, []);
+
+  const tick = useCallback(() => setState((s) => bump(s, dayKey())), []);
+
+  const value = useMemo<Ctx>(() => {
+    const done = (d: string) => (state.activity[d] ?? 0) >= state.goal;
+    let d = done(today) ? today : addDays(today, -1);
+    let streak = 0;
+    while (done(d)) {
+      streak++;
+      d = addDays(d, -1);
+    }
+    return {
       ...state,
+      loaded,
+      today,
+      todayCount: state.activity[today] ?? 0,
+      streak,
+      newLeftToday: (limit) => Math.max(0, limit - (state.newToday.day === today ? state.newToday.count : 0)),
       isKnown: (vi) => state.known.includes(vi),
       setKnown,
       isFavorite: (vi) => state.favorites.includes(vi),
       toggleFavorite,
-      addCompoundCorrect: () => setState((s) => ({ ...s, compoundCorrect: s.compoundCorrect + 1 })),
-      addSentenceCorrect: () => setState((s) => ({ ...s, sentenceCorrect: s.sentenceCorrect + 1 })),
+      review,
+      recordAnswer,
+      removeMistake,
+      tick,
+      setGoal: (goal) => setState((s) => ({ ...s, goal })),
+      setDrillSize: (drillSize) => setState((s) => ({ ...s, drillSize })),
       reset: () => setState(initial),
-    }),
-    [state, setKnown, toggleFavorite],
-  );
+    };
+  }, [state, loaded, today, setKnown, toggleFavorite, review, recordAnswer, removeMistake, tick]);
 
   return <ProgressContext.Provider value={value}>{children}</ProgressContext.Provider>;
 }

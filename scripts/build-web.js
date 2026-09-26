@@ -27,7 +27,41 @@ const shim = fs
   .match(/<script>[\s\S]*?<\/script>/)[0]
   .replace(/_expo\/static\/js\/web\/[^']+\.js/, m[1]);
 html = html.replace('<meta charset="utf-8" />', `<meta charset="utf-8" />\n    ${shim}`);
+
+// 手机浏览器「添加到主屏幕」时的图标和名称
+const pwa = [
+  '<link rel="manifest" href="./manifest.json" />',
+  '<link rel="apple-touch-icon" href="./icon.png" />',
+  '<meta name="apple-mobile-web-app-capable" content="yes" />',
+  '<meta name="mobile-web-app-capable" content="yes" />',
+  '<meta name="apple-mobile-web-app-title" content="越南语学堂" />',
+  '<meta name="theme-color" content="#C8102E" />',
+].join('\n    ');
+html = html.replace('</head>', `  ${pwa}\n  </head>`);
 fs.writeFileSync(indexPath, html);
+fs.copyFileSync(path.join(root, 'assets/icon.png'), path.join(out, 'icon.png'));
+fs.writeFileSync(
+  path.join(out, 'manifest.json'),
+  JSON.stringify(
+    {
+      name: '越南语学堂',
+      short_name: '越南语学堂',
+      start_url: './',
+      display: 'standalone',
+      background_color: '#FAF7F2',
+      theme_color: '#C8102E',
+      icons: [{ src: 'icon.png', sizes: '1024x1024', type: 'image/png' }],
+    },
+    null,
+    2,
+  ),
+);
+
+// 放到网上（GitHub Pages / Netlify / Cloudflare Pages）用：
+// 刷新 /phrases 等页面时回到 App；GitHub Pages 默认会忽略 _expo 文件夹，.nojekyll 关掉这个行为
+fs.copyFileSync(indexPath, path.join(out, '404.html'));
+fs.writeFileSync(path.join(out, '_redirects'), '/*  /index.html  200\n');
+fs.writeFileSync(path.join(out, '.nojekyll'), '');
 
 // 3) 附上 Python 启动脚本
 fs.copyFileSync(path.join(__dirname, 'run_web.py'), path.join(out, 'run.py'));

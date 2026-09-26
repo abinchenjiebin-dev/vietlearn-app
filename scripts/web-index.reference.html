@@ -16,11 +16,15 @@
         });
         return;
       }
-      var dir = location.href.replace(/[#?].*$/, '').replace(/[^/]*$/, '');
+      // 地址是 App 自己的页面（/phrases、/quiz/meaning…）：网站根目录就是 App 所在位置，保留地址
+      var routes = /^\/(phrases|vocab|practice|pronounce|review|mistakes|search|quiz|compounds|sentences|topic|cards)(\/|$)/;
+      var atRoute = routes.test(location.pathname);
+      var dir = atRoute ? location.origin + '/' : location.href.replace(/[#?].*$/, '').replace(/[^/]*$/, '');
       var base = document.createElement('base');
       base.href = dir;
       document.head.appendChild(base);
-      try { history.replaceState(null, '', '/'); } catch (e) {}
+      // 放在子文件夹里打开时，从首页开始
+      if (!atRoute) try { history.replaceState(null, '', '/'); } catch (e) {}
       document.addEventListener('DOMContentLoaded', function () {
         var js = document.createElement('script');
         js.src = dir + '_expo/static/js/web/entry-54f5b906b889dc44b83ae3af52b3e13a.js';

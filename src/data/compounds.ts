@@ -98,6 +98,75 @@ export const rootGroups: RootGroup[] = [
       { vi: 'người bán', zh: '卖家', parts: [{ vi: 'người', zh: '人' }, { vi: 'bán', zh: '卖' }] },
     ],
   },
+  {
+    root: 'điện',
+    zh: '电',
+    compounds: [
+      { vi: 'điện thoại', zh: '电话；手机', parts: [{ vi: 'điện', zh: '电' }, { vi: 'thoại', zh: '话' }] },
+      { vi: 'điện ảnh', zh: '电影（艺术）', parts: [{ vi: 'điện', zh: '电' }, { vi: 'ảnh', zh: '影；照片' }] },
+      { vi: 'điện tử', zh: '电子', parts: [{ vi: 'điện', zh: '电' }, { vi: 'tử', zh: '子' }] },
+      { vi: 'điện nước', zh: '水电', parts: [{ vi: 'điện', zh: '电' }, { vi: 'nước', zh: '水' }] },
+    ],
+  },
+  {
+    root: 'cửa',
+    zh: '门',
+    compounds: [
+      { vi: 'cửa hàng', zh: '商店', parts: [{ vi: 'cửa', zh: '门' }, { vi: 'hàng', zh: '货物；店' }] },
+      { vi: 'cửa khẩu', zh: '口岸', parts: [{ vi: 'cửa', zh: '门' }, { vi: 'khẩu', zh: '口' }] },
+      { vi: 'cửa chính', zh: '正门', parts: [{ vi: 'cửa', zh: '门' }, { vi: 'chính', zh: '主要' }] },
+      { vi: 'cửa sau', zh: '后门', parts: [{ vi: 'cửa', zh: '门' }, { vi: 'sau', zh: '后' }] },
+    ],
+  },
+  {
+    root: 'thịt',
+    zh: '肉',
+    compounds: [
+      { vi: 'thịt bò', zh: '牛肉', parts: [{ vi: 'thịt', zh: '肉' }, { vi: 'bò', zh: '牛' }] },
+      { vi: 'thịt gà', zh: '鸡肉', parts: [{ vi: 'thịt', zh: '肉' }, { vi: 'gà', zh: '鸡' }] },
+      { vi: 'thịt lợn', zh: '猪肉', parts: [{ vi: 'thịt', zh: '肉' }, { vi: 'lợn', zh: '猪' }] },
+      { vi: 'thịt nướng', zh: '烤肉', parts: [{ vi: 'thịt', zh: '肉' }, { vi: 'nướng', zh: '烤' }] },
+    ],
+  },
+  {
+    root: 'bệnh',
+    zh: '病',
+    compounds: [
+      { vi: 'bệnh viện', zh: '医院', parts: [{ vi: 'bệnh', zh: '病' }, { vi: 'viện', zh: '院' }] },
+      { vi: 'bệnh nhân', zh: '病人', parts: [{ vi: 'bệnh', zh: '病' }, { vi: 'nhân', zh: '人' }] },
+      { vi: 'khám bệnh', zh: '看病', parts: [{ vi: 'khám', zh: '检查' }, { vi: 'bệnh', zh: '病' }] },
+    ],
+  },
+  {
+    root: 'ăn',
+    zh: '吃',
+    compounds: [
+      { vi: 'ăn sáng', zh: '吃早饭', parts: [{ vi: 'ăn', zh: '吃' }, { vi: 'sáng', zh: '早上' }] },
+      { vi: 'ăn trưa', zh: '吃午饭', parts: [{ vi: 'ăn', zh: '吃' }, { vi: 'trưa', zh: '中午' }] },
+      { vi: 'ăn tối', zh: '吃晚饭', parts: [{ vi: 'ăn', zh: '吃' }, { vi: 'tối', zh: '晚上' }] },
+      { vi: 'ăn chay', zh: '吃素', parts: [{ vi: 'ăn', zh: '吃' }, { vi: 'chay', zh: '素' }] },
+      { vi: 'ăn cơm', zh: '吃饭', parts: [{ vi: 'ăn', zh: '吃' }, { vi: 'cơm', zh: '米饭' }] },
+    ],
+  },
+  {
+    root: 'sân',
+    zh: '场地；院子',
+    compounds: [
+      { vi: 'sân bay', zh: '机场', parts: [{ vi: 'sân', zh: '场地' }, { vi: 'bay', zh: '飞' }] },
+      { vi: 'sân bóng', zh: '球场', parts: [{ vi: 'sân', zh: '场地' }, { vi: 'bóng', zh: '球' }] },
+      { vi: 'sân trường', zh: '校园；操场', parts: [{ vi: 'sân', zh: '场地' }, { vi: 'trường', zh: '学校' }] },
+    ],
+  },
+  {
+    root: 'đi',
+    zh: '去；走',
+    compounds: [
+      { vi: 'đi bộ', zh: '步行', parts: [{ vi: 'đi', zh: '走' }, { vi: 'bộ', zh: '步' }] },
+      { vi: 'đi làm', zh: '上班', parts: [{ vi: 'đi', zh: '去' }, { vi: 'làm', zh: '做；工作' }] },
+      { vi: 'đi học', zh: '上学', parts: [{ vi: 'đi', zh: '去' }, { vi: 'học', zh: '学' }] },
+      { vi: 'đi chơi', zh: '出去玩', parts: [{ vi: 'đi', zh: '去' }, { vi: 'chơi', zh: '玩' }] },
+    ],
+  },
 ];
 
 export const allCompounds: Compound[] = rootGroups.flatMap((g) => g.compounds);

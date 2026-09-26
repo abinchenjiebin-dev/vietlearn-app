@@ -6,11 +6,16 @@
 
 | 模块 | 内容 |
 | --- | --- |
-| 首页 | 学习进度、6 个声调示范（ma / mà / má / mả / mã / mạ） |
-| 常用语 | 8 个主题共 100 句：问候、数字、购物、餐饮、出行、时间、家庭、日常求助；可收藏 |
-| 词汇卡片 | 129 个基础词，越→中 / 中→越 两种模式，翻面、打乱、标记“记住了” |
-| 组词 | 8 个词根（nhà、xe、máy、nước…）拆解 35 个合成词 + 拼词小测验 |
-| 组句子 | 24 道拼句练习，点词块排出正确语序，附语法提示 |
+| 今天（首页） | 每日目标圆环、连续打卡天数、每日一刷、智能复习入口、本周学习日历（可展开看 5 周） |
+| 常用语 | 16 个主题共 258 句；可收藏，⭐ 只看收藏 |
+| 词汇卡片 | 408 个常用词，越→中 / 中→越，翻转动画，“记住了/还不会”自动加入智能复习 |
+| 每日一刷 | 自选 10 / 20 / 30 / 50 题，选择、听音、拼写、声调随机混合 |
+| 练习 | 智能复习（新词先学后考，旧词随机出题，按遗忘规律安排）、错题本、5 种测验：看中文选越南语、看越南语选中文、听音选词、拼写、听辨声调 |
+| 组词 / 组句子 | 15 个词根 62 个合成词；52 道拼句练习，附语法提示 |
+| 发音 | 29 个字母 + 10 个辅音组合（带例词发音）、6 个声调、拼读规则 |
+| 搜索 | 右上角 🔍，搜中文或越南语，可以不打声调（cam on → cảm ơn） |
+
+界面支持深色模式，跟随手机系统设置。
 
 发音使用手机系统自带的越南语语音（iOS 上叫 “Linh”），**点 🔊 正常语速，点 ⏳ 或长按 🔊 慢速**。学习进度保存在手机本地。
 
@@ -55,22 +60,29 @@
 ```
 src/
   app/                  页面（Expo Router，文件即路由）
-    _layout.tsx         根布局
-    (tabs)/             底部 5 个标签页
-      index.tsx         首页
-      phrases.tsx       常用语
-      vocab.tsx         词汇卡片
-      compounds.tsx     组词
-      sentences.tsx     组句子
+    _layout.tsx         根布局（深色模式、页面栈）
+    (tabs)/             底部 5 个标签页：今天、常用语、词汇、练习、发音
+    review.tsx          智能复习
+    quiz/[type].tsx     测验（meaning / vi2zh / listen / spell / tone / mix=每日一刷）
+    compounds.tsx       组词
+    sentences.tsx       组句子
+    mistakes.tsx        错题本
+    search.tsx          搜索
   data/                 学习内容（想加内容改这里就行）
     topics.ts           主题、常用语、词汇、声调
     compounds.ts        组词
     sentences.ts        组句子
+    alphabet.ts         字母发音课
+    index.ts            汇总（搜索、测验用）
   lib/
     speech.ts           越南语发音（expo-speech）
-    progress.tsx        学习进度（本地保存）
-  components/ui.tsx     通用组件（发音按钮、卡片、按钮…）
-  theme.ts              颜色
+    progress.tsx        学习进度、打卡、错题本（本地保存）
+    srs.ts              智能复习算法（间隔重复）
+    quiz.ts             测验出题
+  components/ui.tsx     通用组件（按钮、卡片、进度环、选择题…）
+  components/quiz.tsx   答题组件（选择、拼写、声调）
+  components/DailyDrill.tsx  每日一刷卡片
+  theme.ts              浅色 / 深色配色
 ```
 
 ## 添加内容
@@ -87,3 +99,15 @@ src/
 或在终端里 `python run.py`（自测：`python run.py --test`）。不要直接双击 index.html。
 
 自己重新生成网页版：`node scripts/build-web.js`，输出在 `web-build/`。
+
+## 把网页版放到网上分享（GitHub Pages，免费）
+
+1. 注册 [GitHub](https://github.com) 账号，新建一个**公开**仓库，名字必须是 `<用户名>.github.io`（全小写），什么都不勾选。
+2. 在项目文件夹运行（第一次会弹出浏览器让你登录 GitHub）：
+   ```bash
+   node scripts/deploy-web.js https://github.com/<用户名>/<用户名>.github.io.git
+   ```
+3. 等 1～2 分钟，打开 `https://<用户名>.github.io`，把网址发给别人即可。
+   手机浏览器里「分享 → 添加到主屏幕」，用起来就像一个 App。
+
+以后改了内容，再运行一次第 2 步就会更新。

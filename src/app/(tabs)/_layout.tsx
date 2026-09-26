@@ -1,37 +1,76 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Tabs } from 'expo-router';
 import React from 'react';
-import type { ColorValue } from 'react-native';
+import { Platform, type ColorValue, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { colors } from '../../theme';
-
-type IconName = keyof typeof Ionicons.glyphMap;
-
-const tab = (title: string, icon: IconName) => ({
-  title,
-  tabBarIcon: ({ color, size }: { color: ColorValue; size: number }) => (
-    <Ionicons name={icon} size={size} color={color as string} />
-  ),
-});
+import { AppBackground } from '../../components/Art';
+import { IconName } from '../../components/ui';
+import { useTheme } from '../../theme';
 
 export default function TabLayout() {
+  const { c, isDark } = useTheme();
+  const insets = useSafeAreaInsets();
+
+  // 选中的标签：图标后面加一个淡红色胶囊
+  const tab = (title: string, icon: IconName, activeIcon: IconName) => ({
+    title,
+    tabBarIcon: ({ color, focused }: { color: ColorValue; focused: boolean }) => (
+      <View
+        style={{
+          width: 46,
+          height: 26,
+          borderRadius: 13,
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: focused ? c.primarySoft : 'transparent',
+        }}
+      >
+        <Ionicons name={focused ? activeIcon : icon} size={19} color={color as string} />
+      </View>
+    ),
+  });
+
   return (
     <Tabs
+      // 每个标签页自带不透明背景，切换时不会透出别的页面
+      screenLayout={({ children }) => (
+        <View style={{ flex: 1, backgroundColor: c.bg }}>
+          <AppBackground />
+          {children}
+        </View>
+      )}
       screenOptions={{
-        tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.sub,
-        headerStyle: { backgroundColor: colors.bg },
-        headerShadowVisible: false,
-        headerTitleStyle: { fontWeight: '700', fontSize: 18, color: colors.text },
-        sceneStyle: { backgroundColor: colors.bg },
-        tabBarStyle: { backgroundColor: colors.card, borderTopColor: colors.border },
+        headerShown: false,
+        tabBarActiveTintColor: c.primary,
+        tabBarInactiveTintColor: c.faint,
+        tabBarLabelStyle: { fontSize: 10, fontWeight: '600', marginTop: 3 },
+        tabBarItemStyle: { paddingTop: 6 },
+        sceneStyle: { backgroundColor: c.bg },
+        tabBarStyle: {
+          backgroundColor: c.tabBar,
+          borderTopWidth: 0,
+          // 图标 + 文字 + 手机底部安全区
+          height: 68 + insets.bottom,
+          paddingBottom: insets.bottom + 6,
+          borderTopLeftRadius: 20,
+          borderTopRightRadius: 20,
+          ...(Platform.OS === 'android'
+            ? { elevation: 12 }
+            : {
+                shadowColor: '#3B2A1A',
+                shadowOpacity: isDark ? 0.4 : 0.08,
+                shadowRadius: 16,
+                shadowOffset: { width: 0, height: -4 },
+              }),
+        },
       }}
     >
-      <Tabs.Screen name="index" options={{ ...tab('首页', 'home'), headerShown: false }} />
-      <Tabs.Screen name="phrases" options={tab('常用语', 'chatbubbles')} />
-      <Tabs.Screen name="vocab" options={tab('词汇', 'albums')} />
-      <Tabs.Screen name="compounds" options={tab('组词', 'git-merge')} />
-      <Tabs.Screen name="sentences" options={tab('组句子', 'reorder-four')} />
+      <Tabs.Screen name="index" options={tab('今天', 'sunny-outline', 'sunny')} />
+      <Tabs.Screen name="phrases" options={tab('常用语', 'chatbubbles-outline', 'chatbubbles')} />
+      <Tabs.Screen name="vocab" options={tab('词汇', 'albums-outline', 'albums')} />
+      <Tabs.Screen name="practice" options={tab('练习', 'barbell-outline', 'barbell')} />
+      <Tabs.Screen name="pronounce" options={tab('发音', 'mic-outline', 'mic')} />
     </Tabs>
   );
 }
