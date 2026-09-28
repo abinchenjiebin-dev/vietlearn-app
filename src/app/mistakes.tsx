@@ -8,6 +8,7 @@ import { Button, Card, Empty, SectionTitle, SpeakButton, tap } from '../componen
 import { wordByVi } from '../data';
 import { allCompounds } from '../data/compounds';
 import { sentences, sentenceText } from '../data/sentences';
+import { wordHref } from '../lib/links';
 import { MistakeKind, useProgress } from '../lib/progress';
 import { Theme, useStyles, useTheme } from '../theme';
 
@@ -57,7 +58,12 @@ export default function Mistakes() {
             />
             <Card style={{ paddingVertical: 4 }}>
               {list.map((r, i) => (
-                <View key={r.id} style={[s.row, i > 0 && s.divider]}>
+                <Pressable
+                  key={r.id}
+                  disabled={r.kind !== 'word'}
+                  onPress={() => router.push(wordHref(r.id))}
+                  style={[s.row, i > 0 && s.divider]}
+                >
                   <View style={{ flex: 1 }}>
                     <Text style={s.vi}>{r.vi}</Text>
                     <Text style={s.zh}>
@@ -74,7 +80,8 @@ export default function Mistakes() {
                   >
                     <Ionicons name="trash-outline" size={16} color={c.faint} />
                   </Pressable>
-                </View>
+                  {r.kind === 'word' && <Ionicons name="chevron-forward" size={15} color={c.faint} />}
+                </Pressable>
               ))}
             </Card>
           </View>

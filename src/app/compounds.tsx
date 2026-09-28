@@ -3,6 +3,7 @@ import React, { useMemo, useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 
 import { Text } from '../components/Text';
+import { RoundResult } from '../components/quiz';
 import { Button, buzz, Card, Chip, Feedback, PressableScale, SpeakButton, tap } from '../components/ui';
 import { allCompounds, allSyllables, Compound, rootGroups } from '../data/compounds';
 import { useProgress } from '../lib/progress';
@@ -62,6 +63,8 @@ function Learn() {
 
 type Tile = { id: number; text: string };
 
+const ROUND = 10;
+
 function makeQuestion(pool: Compound[], prev?: Compound) {
   const choices = pool.length > 1 ? pool.filter((c) => c !== prev) : pool;
   const q = choices[Math.floor(Math.random() * choices.length)];
@@ -88,9 +91,25 @@ function Quiz({ onlyMistakes }: { onlyMistakes: boolean }) {
   const [picked, setPicked] = useState<Tile[]>([]);
   const [result, setResult] = useState<'right' | 'wrong' | null>(null);
   const [streak, setStreak] = useState(0);
+  // 每轮 10 题，做完显示成绩
+  const [count, setCount] = useState(1);
+  const [score, setScore] = useState(0);
+  const [finished, setFinished] = useState(false);
   const { q, tiles } = question;
 
   const next = () => {
+    if (count >= ROUND) return setFinished(true);
+    setCount((n) => n + 1);
+    setQuestion(makeQuestion(pool, q));
+    setPicked([]);
+    setResult(null);
+  };
+
+  const restart = () => {
+    setCount(1);
+    setScore(0);
+    setStreak(0);
+    setFinished(false);
     setQuestion(makeQuestion(pool, q));
     setPicked([]);
     setResult(null);
@@ -109,14 +128,19 @@ function Quiz({ onlyMistakes }: { onlyMistakes: boolean }) {
     const ok = now.map((x) => x.text).join(' ') === q.vi;
     setResult(ok ? 'right' : 'wrong');
     setStreak((n) => (ok ? n + 1 : 0));
+    if (ok) setScore((n) => n + 1);
     buzz(ok);
     recordAnswer('compound', q.vi, ok);
     speakVi(q.vi);
   };
 
+  if (finished) return <RoundResult score={score} total={ROUND} note="答错的词会放进错题本" onAgain={restart} />;
+
   return (
     <ScrollView contentContainerStyle={{ padding: 16, paddingTop: 4, paddingBottom: 40 }}>
-      <Text style={s.streak}>{onlyMistakes ? '📕 错题练习 · ' : ''}🔥 连对 {streak}</Text>
+      <Text style={s.streak}>
+        {onlyMistakes ? '📕 错题练习 · ' : ''}第 {count}/{ROUND} 题 · 🔥 连对 {streak}
+      </Text>
       <Card style={{ alignItems: 'center', paddingVertical: 20 }}>
         <Text style={s.qLabel}>用音节拼出这个词</Text>
         <Text style={s.qZh}>{q.zh}</Text>
@@ -165,7 +189,7 @@ function Quiz({ onlyMistakes }: { onlyMistakes: boolean }) {
 
       <View style={{ flexDirection: 'row', marginTop: 14, gap: 8 }}>
         <Button label="重选" kind="ghost" icon="refresh" style={{ flex: 1 }} disabled={!!result || picked.length === 0} onPress={() => setPicked([])} />
-        <Button label={result ? '下一题' : '跳过'} icon="arrow-forward" style={{ flex: 1 }} onPress={next} />
+        <Button label={count >= ROUND && result ? '查看成绩' : result ? '下一题' : '跳过'} icon="arrow-forward" style={{ flex: 1 }} onPress={next} />
       </View>
     </ScrollView>
   );
@@ -206,6 +230,7 @@ const makeStyles = ({ c, shadow }: Theme) => ({
   slotText: { fontSize: 18, fontWeight: '700' as const, color: c.text },
   tiles: { flexDirection: 'row' as const, flexWrap: 'wrap' as const, justifyContent: 'center' as const, gap: 8, marginTop: 16 },
   tile: {
+    ...shadow,
     paddingHorizontal: 14,
     paddingVertical: 9,
     borderRadius: radius.sm,
@@ -213,7 +238,6 @@ const makeStyles = ({ c, shadow }: Theme) => ({
     borderWidth: 1,
     borderColor: c.border,
     borderBottomWidth: 3,
-    ...shadow,
   },
   tileText: { fontSize: 17, fontWeight: '600' as const, color: c.text },
   fbVi: { fontSize: 19, fontWeight: '800' as const, color: c.text },

@@ -14,9 +14,9 @@ import { NEW_PER_DAY, previewInterval } from '../lib/srs';
 import { font, radius, Theme, useStyles, useTheme } from '../theme';
 
 /** learn = 新词先看一遍；test = 出题考 */
-type Item = { word: Word; stage: 'learn' | 'test'; q?: Question; retry?: boolean };
+type Item = { word: Word; stage: 'learn' | 'test'; q?: Question; retry?: boolean; learned?: boolean };
 
-const test = (word: Word, retry = false): Item => ({ word, stage: 'test', q: makeAny(word), retry });
+const test = (word: Word, retry = false, learned = false): Item => ({ word, stage: 'test', q: makeAny(word), retry, learned });
 
 export default function Review() {
   const p = useProgress();
@@ -78,7 +78,7 @@ export default function Review() {
   const learned = (easy: boolean) => {
     tap();
     if (easy) p.review(item.word.vi, 'easy');
-    else setExtra([...extra, test(item.word)]);
+    else setExtra([...extra, test(item.word, false, true)]);
     advance();
   };
 
@@ -133,6 +133,7 @@ export default function Review() {
         ) : (
           <>
             {item.retry && <Text style={s.retry}>🔁 刚才答错的词，再来一次</Text>}
+            {item.learned && <Text style={s.learned}>📝 刚学的新词，考考你</Text>}
             <QuestionView key={done} q={item.q!} onAnswer={onAnswer} />
             {answered !== null && (
               <View style={{ flexDirection: 'row', gap: 8, marginTop: 14 }}>
@@ -164,5 +165,6 @@ const makeStyles = ({ c }: Theme) => ({
   vi: { ...font.hero, fontSize: 32, color: c.text, textAlign: 'center' as const },
   zh: { ...font.title, color: c.sub, marginTop: 6, textAlign: 'center' as const },
   note: { fontSize: 12, color: c.goldText, marginTop: 6, textAlign: 'center' as const },
+  learned: { color: c.primary, fontSize: 12, fontWeight: '700' as const, marginBottom: 8, textAlign: 'center' as const },
   retry: { color: c.danger, fontSize: 12, fontWeight: '700' as const, marginBottom: 8, textAlign: 'center' as const },
 });

@@ -9,6 +9,7 @@ import { GradientFill, Lantern } from '../../components/Art';
 import { DailyDrill } from '../../components/DailyDrill';
 import { Card, Chip, PressableScale, ProgressRing, tap } from '../../components/ui';
 import { allWords } from '../../data';
+import { currentLevel, getUnit } from '../../data/levels';
 import { getTopic } from '../../data/topics';
 import { useProgress } from '../../lib/progress';
 import { findVietnameseVoice } from '../../lib/speech';
@@ -22,7 +23,7 @@ const WEEKDAYS = ['一', '二', '三', '四', '五', '六', '日'];
 export default function Home() {
   const p = useProgress();
   const s = useStyles(makeStyles);
-  const { c, isDark } = useTheme();
+  const { c } = useTheme();
   const [hasVoice, setHasVoice] = useState<boolean | null>(null);
   const [pickGoal, setPickGoal] = useState(false);
   const [showMonth, setShowMonth] = useState(false);
@@ -37,6 +38,9 @@ export default function Home() {
   const mistakes = Object.keys(p.mistakes).length;
   const pct = p.todayCount / p.goal;
   const last = p.lastVisit ? getTopic(p.lastVisit.id) : undefined;
+  const cur = currentLevel(p.levels);
+  const curUnit = cur ? getUnit(cur.unitId) : undefined;
+  const totalStars = Object.values(p.levels).reduce((n, x) => n + x, 0);
   const done = p.todayCount >= p.goal;
 
   const d = new Date();
@@ -68,7 +72,7 @@ export default function Home() {
 
         {/* 今日目标：紧凑卡片，红色渐变 + 灯笼插画 */}
         <View style={s.hero}>
-          <GradientFill from={isDark ? '#8E1B2C' : '#E23A4E'} to={isDark ? '#5E1220' : '#B8142B'} radius={16} />
+          <GradientFill from={c.heroFrom} to={c.heroTo} radius={16} />
           <View style={s.lantern1}>
             <Lantern size={62} color="#FFB23F" trim="#FFE7A3" opacity={0.9} />
           </View>
@@ -100,6 +104,29 @@ export default function Home() {
           </View>
         )}
 
+        {/* 课程闯关：当前这一关 */}
+        <View style={s.course}>
+          <View style={s.courseIcon}>
+            <Text style={{ fontSize: 20 }}>{curUnit?.emoji ?? '🏆'}</Text>
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={s.contLabel}>
+              课程闯关 · ⭐ {totalStars} · ⚡ {p.xp} 经验
+            </Text>
+            <Text style={s.contTitle}>
+              {cur && curUnit ? `第 ${curUnit.n} 单元 ${curUnit.zh} · ${cur.title}` : '全部通关了！🎉'}
+            </Text>
+            <Pressable onPress={() => router.push('/levels')} hitSlop={8}>
+              <Text style={s.courseAll}>查看闯关地图 ›</Text>
+            </Pressable>
+          </View>
+          {cur && (
+            <PressableScale onPress={() => router.push(`/level/${cur.id}` as Href)} style={s.courseGo} scaleTo={0.92}>
+              <Text style={s.courseGoText}>开始</Text>
+            </PressableScale>
+          )}
+        </View>
+
         {last && (
           <PressableScale
             onPress={() => router.push((p.lastVisit!.kind === 'cards' ? `/cards/${last.id}` : `/topic/${last.id}`) as Href)}
@@ -112,7 +139,7 @@ export default function Home() {
             <View style={{ flex: 1 }}>
               <Text style={s.contLabel}>继续学习</Text>
               <Text style={s.contTitle}>
-                {last.zh} · {p.lastVisit!.kind === 'cards' ? '单词卡片' : '常用语'}
+                {last.zh} · {p.lastVisit!.kind === 'cards' ? '单词卡片' : '单词和常用语'}
               </Text>
             </View>
             <Ionicons name="play-circle" size={26} color={c.primary} />
@@ -263,6 +290,29 @@ const makeStyles = ({ c, shadow }: Theme) => ({
   },
   streakText: { color: '#fff', fontWeight: '700' as const, fontSize: 11 },
   goalLink: { color: 'rgba(255,255,255,0.92)', fontSize: 11, fontWeight: '600' as const },
+  course: {
+    ...shadow,
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    backgroundColor: c.card,
+    borderRadius: radius.md,
+    padding: 12,
+    marginTop: 10,
+    borderWidth: 1.5,
+    borderColor: c.primary,
+  },
+  courseIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: c.primarySoft,
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+    marginRight: 10,
+  },
+  courseAll: { fontSize: 12, color: c.primary, fontWeight: '700' as const, marginTop: 4 },
+  courseGo: { backgroundColor: c.primary, borderRadius: radius.pill, paddingHorizontal: 16, paddingVertical: 9 },
+  courseGoText: { fontSize: 14, fontWeight: '800' as const, color: c.onPrimary },
   cont: {
     flexDirection: 'row' as const,
     alignItems: 'center' as const,

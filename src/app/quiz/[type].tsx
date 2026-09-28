@@ -3,14 +3,14 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
 
 import { Text } from '../../components/Text';
-import { QuestionView } from '../../components/quiz';
+import { QuestionView, RoundResult } from '../../components/quiz';
 import { Button, buzz, Empty, ProgressBar } from '../../components/ui';
 import { allWords, wordByVi, type Word } from '../../data';
 import { getTopic } from '../../data/topics';
 import { useProgress } from '../../lib/progress';
 import { buildQuiz, mixMeta, Question, QUIZ_LEN, QuizType, quizTypes } from '../../lib/quiz';
 import { speakVi } from '../../lib/speech';
-import { font, Theme, useStyles } from '../../theme';
+import { Theme, useStyles } from '../../theme';
 
 export default function Quiz() {
   const { type, topic, source, count } = useLocalSearchParams<{ type: QuizType; topic?: string; source?: string; count?: string }>();
@@ -83,7 +83,12 @@ export default function Quiz() {
     return (
       <>
         {title}
-        <Result score={score} total={questions.length} tone={meta.type === 'tone'} onAgain={restart} />
+        <RoundResult
+          score={score}
+          total={questions.length}
+          note={meta.type === 'tone' ? undefined : '答错的词会放进错题本'}
+          onAgain={restart}
+        />
       </>
     );
 
@@ -116,35 +121,9 @@ export default function Quiz() {
   );
 }
 
-function Result({ score, total, tone, onAgain }: { score: number; total: number; tone: boolean; onAgain: () => void }) {
-  const s = useStyles(makeStyles);
-  const ratio = score / total;
-  const stars = ratio >= 0.9 ? 3 : ratio >= 0.6 ? 2 : ratio > 0 ? 1 : 0;
-  const pct = Math.round(ratio * 100);
-  return (
-    <View style={s.result}>
-      <Text style={s.stars}>{'★'.repeat(stars)}<Text style={s.starsOff}>{'★'.repeat(3 - stars)}</Text></Text>
-      <Text style={s.resultNum}>
-        {score} / {total}
-      </Text>
-      <Text style={s.resultPct}>正确率 {pct}%</Text>
-      <Text style={s.resultText}>{ratio >= 0.9 ? '太棒了！🎉' : ratio >= 0.6 ? '不错，继续加油！💪' : '多练几次就熟了 🌱'}</Text>
-      {!tone && score < total && <Text style={s.resultSub}>答错的词已经放进错题本</Text>}
-      <Button label="再来一轮" icon="refresh" onPress={onAgain} style={{ alignSelf: 'stretch', marginTop: 22 }} />
-      <Button label="返回" kind="ghost" onPress={() => router.back()} style={{ alignSelf: 'stretch', marginTop: 8 }} />
-    </View>
-  );
-}
 
 const makeStyles = ({ c }: Theme) => ({
   container: { padding: 16, paddingTop: 8, paddingBottom: 40 },
   progressRow: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 10, marginBottom: 12 },
   count: { color: c.sub, fontSize: 12, fontWeight: '600' as const },
-  result: { flex: 1, alignItems: 'center' as const, justifyContent: 'center' as const, padding: 32 },
-  stars: { fontSize: 38, color: c.gold, letterSpacing: 4 },
-  starsOff: { color: c.border },
-  resultNum: { ...font.hero, fontSize: 34, color: c.text, marginTop: 8 },
-  resultPct: { fontSize: 13, color: c.sub, marginTop: 4, fontWeight: '600' as const },
-  resultText: { fontSize: 15, fontWeight: '700' as const, color: c.text, marginTop: 8 },
-  resultSub: { fontSize: 12, color: c.sub, marginTop: 4 },
 });

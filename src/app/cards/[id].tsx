@@ -4,9 +4,10 @@ import React, { useEffect, useState } from 'react';
 import { Animated, Pressable, ScrollView, View } from 'react-native';
 
 import { Text } from '../../components/Text';
-import { Button, Chip, native, PressableScale, ProgressBar, SpeakButton, tap } from '../../components/ui';
-import { allPhrases } from '../../data';
+import { Button, Chip, Empty, native, PressableScale, ProgressBar, SpeakButton, tap } from '../../components/ui';
+import { examplesFor, wordByVi, type Word } from '../../data';
 import { getTopic, topics } from '../../data/topics';
+import { wordHref } from '../../lib/links';
 import { useProgress } from '../../lib/progress';
 import { speakVi } from '../../lib/speech';
 import { shuffle } from '../../lib/utils';
@@ -14,28 +15,33 @@ import { radius, Theme, useStyles, useTheme } from '../../theme';
 
 type Mode = 'vi2zh' | 'zh2vi';
 
-/** 从常用语里找含这个词的句子（按整个词匹配），最多 2 句 */
-function findExamples(vi: string) {
-  const key = ` ${vi.toLowerCase()} `;
-  return allPhrases.filter((p) => ` ${p.vi.toLowerCase().replace(/[.,!?]/g, '')} `.includes(key)).slice(0, 2);
-}
 
 /** 某个主题的单词卡片 */
 export default function Cards() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const topic = getTopic(id) ?? topics[0];
+  const { isKnown, setKnown, autoPlay, setLastVisit, favWords } = useProgress();
+  const { c } = useTheme();
+  // id = fav 时是“收藏的单词”
+  const isFav = id === 'fav';
+  const topic = isFav
+    ? {
+        id: 'fav',
+        emoji: '⭐',
+        zh: '收藏的单词',
+        color: c.gold,
+        words: favWords.map((v) => wordByVi.get(v)).filter((w): w is Word => !!w),
+      }
+    : (getTopic(id) ?? topics[0]);
   const [mode, setMode] = useState<Mode>('vi2zh');
   const [index, setIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [cards, setCards] = useState(topic.words);
-  const { isKnown, setKnown, autoPlay, setLastVisit } = useProgress();
   const s = useStyles(makeStyles);
-  const { c } = useTheme();
   const turn = useState(() => new Animated.Value(0))[0];
 
-  const card = cards[Math.min(index, cards.length - 1)];
+  const card = cards[Math.min(index, cards.length - 1)] as Word | undefined;
   const knownCount = topic.words.filter((w) => isKnown(w.vi)).length;
-  const examples = findExamples(card.vi);
+  const examples = card ? examplesFor(card.vi, 2) : [];
 
   // 越南语朝上时自动朗读（设置里可以关）
   useEffect(() => {
@@ -43,7 +49,9 @@ export default function Cards() {
   }, [card, mode, autoPlay]);
 
   // 记住上次学到这里（首页“继续学习”）
-  useEffect(() => setLastVisit('cards', topic.id), [setLastVisit, topic.id]);
+  useEffect(() => {
+    if (!isFav) setLastVisit('cards', topic.id);
+  }, [isFav, setLastVisit, topic.id]);
 
   const reset = () => {
     setFlipped(false);
@@ -66,8 +74,16 @@ export default function Cards() {
     const next = !flipped;
     setFlipped(next);
     Animated.spring(turn, { toValue: next ? 1 : 0, useNativeDriver: native, friction: 8, tension: 60 }).start();
-    if (next && mode === 'zh2vi') speakVi(card.vi);
+    if (next && mode === 'zh2vi' && card) speakVi(card.vi);
   };
+
+  if (!card)
+    return (
+      <>
+        <Stack.Screen options={{ title: '⭐ 收藏的单词' }} />
+        <Empty icon="star-outline" title="还没有收藏单词" sub="在单词详情页点右上角的 ☆ 就能收藏" />
+      </>
+    );
 
   const front = mode === 'vi2zh' ? card.vi : card.zh;
   const back = mode === 'vi2zh' ? card.zh : card.vi;
@@ -101,6 +117,10 @@ export default function Cards() {
         <Animated.View pointerEvents={flipped ? 'none' : 'box-none'} style={[s.card, { transform: [{ perspective: 1000 }, { rotateY: rotFront }] }]}>
           <View style={[s.stripe, { backgroundColor: topic.color }]} />
           {known && <Text style={s.badge}>✓ 已掌握</Text>}
+          <Pressable onPress={() => router.push(wordHref(card.vi))} hitSlop={8} style={s.detail} accessibilityLabel="单词详情">
+            <Ionicons name="information-circle-outline" size={15} color={c.sub} />
+            <Text style={s.detailText}>详情</Text>
+          </Pressable>
           <Text style={[s.front, mode === 'zh2vi' && s.frontZh]}>{front}</Text>
           <Text style={s.hint}>点卡片翻面</Text>
           {mode === 'vi2zh' && (
@@ -112,6 +132,10 @@ export default function Cards() {
         </Animated.View>
         <Animated.View pointerEvents={flipped ? 'box-none' : 'none'} style={[s.card, { transform: [{ perspective: 1000 }, { rotateY: rotBack }] }]}>
           <View style={[s.stripe, { backgroundColor: topic.color }]} />
+          <Pressable onPress={() => router.push(wordHref(card.vi))} hitSlop={8} style={s.detail} accessibilityLabel="单词详情">
+            <Ionicons name="information-circle-outline" size={15} color={c.sub} />
+            <Text style={s.detailText}>详情</Text>
+          </Pressable>
           <Text style={s.small}>{front}</Text>
           <Text style={[s.back, mode === 'zh2vi' && s.backVi]}>{back}</Text>
           {card.note && <Text style={s.note}>💡 {card.note}</Text>}
@@ -148,11 +172,13 @@ export default function Cards() {
         </View>
       )}
 
+      {!isFav && (
       <PressableScale onPress={() => router.push(`/quiz/meaning?topic=${topic.id}` as Href)} style={s.quiz} scaleTo={0.98}>
         <Ionicons name="school-outline" size={18} color={c.primary} />
         <Text style={s.quizText}>测验这个主题（10 题）</Text>
         <Ionicons name="chevron-forward" size={16} color={c.faint} />
       </PressableScale>
+      )}
       <Text style={s.tip}>“记住了 / 还不会”会自动加入智能复习，按遗忘规律安排复习</Text>
     </ScrollView>
   );
@@ -182,6 +208,8 @@ const makeStyles = ({ c, shadow }: Theme) => ({
     ...shadow,
   },
   stripe: { position: 'absolute' as const, top: 0, left: 0, right: 0, height: 4 },
+  detail: { position: 'absolute' as const, top: 12, left: 12, flexDirection: 'row' as const, alignItems: 'center' as const, gap: 3 },
+  detailText: { fontSize: 11, color: c.sub },
   badge: { position: 'absolute' as const, top: 14, right: 14, color: c.success, fontSize: 11, fontWeight: '700' as const },
   front: { fontSize: 34, fontWeight: '800' as const, color: c.text, textAlign: 'center' as const, letterSpacing: -0.5 },
   frontZh: { fontSize: 26 },

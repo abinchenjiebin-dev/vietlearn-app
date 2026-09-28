@@ -54,11 +54,11 @@ export function AppBackground({ glow = true }: { glow?: boolean }) {
             <Stop offset="1" stopColor={c.bg} />
           </LinearGradient>
           <RadialGradient id={`red${id}`} cx="0%" cy="0%" rx="75%" ry="40%" fx="0%" fy="0%">
-            <Stop offset="0" stopColor={c.primary} stopOpacity={isDark ? 0.28 : 0.16} />
+            <Stop offset="0" stopColor={c.primary} stopOpacity={isDark ? 0.22 : 0.12} />
             <Stop offset="1" stopColor={c.primary} stopOpacity="0" />
           </RadialGradient>
           <RadialGradient id={`gold${id}`} cx="100%" cy="6%" rx="65%" ry="30%" fx="100%" fy="6%">
-            <Stop offset="0" stopColor={c.gold} stopOpacity={isDark ? 0.16 : 0.2} />
+            <Stop offset="0" stopColor={c.gold} stopOpacity={isDark ? 0.1 : 0.12} />
             <Stop offset="1" stopColor={c.gold} stopOpacity="0" />
           </RadialGradient>
         </Defs>
@@ -67,7 +67,7 @@ export function AppBackground({ glow = true }: { glow?: boolean }) {
         {glow && <Rect width="100%" height="100%" fill={`url(#gold${id})`} />}
       </Svg>
       <View style={{ position: 'absolute', right: -24, bottom: 70 }}>
-        <Lotus size={170} color={c.primary} opacity={isDark ? 0.07 : 0.05} />
+        <Lotus size={170} color="#E86A92" opacity={isDark ? 0.08 : 0.07} />
       </View>
     </View>
   );

@@ -15,7 +15,7 @@ export const quizTypes: { type: QuizType; title: string; sub: string; icon: Icon
   { type: 'tone', title: '听辨声调', sub: '听一个音节，选出它的声调', icon: 'pulse', color: '#D1A21F' },
 ];
 
-export const mixMeta = { type: 'mix' as const, title: '每日一刷', sub: '所有题型随机混合', icon: 'flash' as IconName, color: '#D7263D' };
+export const mixMeta = { type: 'mix' as const, title: '每日一刷', sub: '所有题型随机混合', icon: 'flash' as IconName, color: '#0F9D6B' };
 
 export const DRILL_SIZES = [10, 20, 30, 50];
 

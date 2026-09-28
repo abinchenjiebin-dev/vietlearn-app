@@ -27,7 +27,14 @@
     "scheme": "vietlearn",
     "plugins": [
       "expo-router",
-      "expo-font"
+      "expo-font",
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "跟读练习需要用麦克风录下你的发音，方便和标准发音对比。录音只保存在手机上。"
+        }
+      ],
+      "expo-asset"
     ]
   }
 }

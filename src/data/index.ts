@@ -35,3 +35,23 @@ export const searchIndex: SearchItem[] = [
   })),
   ...sentences.map((s) => ({ kind: '句子' as const, vi: sentenceText(s), zh: s.zh, note: s.tip })),
 ];
+
+const syllablesOf = (vi: string) => vi.toLowerCase().split(' ');
+
+/** 含这个词的常用语（按整词匹配） */
+export function examplesFor(vi: string, n = 3): Word[] {
+  const key = ` ${vi.toLowerCase()} `;
+  return allPhrases.filter((p) => ` ${p.vi.toLowerCase().replace(/[.,!?]/g, '')} `.includes(key)).slice(0, n);
+}
+
+/** 用到这个词（或它的某个音节）的合成词 */
+export function relatedCompounds(vi: string) {
+  const syl = syllablesOf(vi);
+  return allCompounds.filter((c) => c.vi !== vi && c.parts.some((p) => syl.includes(p.vi.toLowerCase()))).slice(0, 6);
+}
+
+/** 和这个词有相同音节的其他单词，比如 xe → xe máy、xe buýt */
+export function relatedWords(vi: string, n = 8): Word[] {
+  const syl = syllablesOf(vi);
+  return allWords.filter((w) => w.vi !== vi && syllablesOf(w.vi).some((x) => syl.includes(x))).slice(0, n);
+}

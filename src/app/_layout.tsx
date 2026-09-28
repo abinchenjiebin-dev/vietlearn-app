@@ -80,6 +80,11 @@ function Root() {
           <Stack.Screen name="sentences" options={{ title: '组句子' }} />
           <Stack.Screen name="mistakes" options={{ title: '错题本' }} />
           <Stack.Screen name="settings" options={{ title: '设置' }} />
+          <Stack.Screen name="word/[vi]" options={{ title: '单词' }} />
+          <Stack.Screen name="shadow/[id]" options={{ title: '跟读' }} />
+          <Stack.Screen name="dialogues" options={{ title: '情景对话' }} />
+          <Stack.Screen name="dialogue/[id]" options={{ title: '对话' }} />
+          <Stack.Screen name="level/[id]" options={{ headerShown: false, gestureEnabled: false }} />
           <Stack.Screen
             name="search"
             options={{ title: '搜索', presentation: 'modal', contentStyle: { backgroundColor: c.bg } }}

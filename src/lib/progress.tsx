@@ -5,6 +5,7 @@ import { Grade, schedule, SrsCard } from './srs';
 import { addDays, dayKey } from './utils';
 
 const KEY = 'vietlearn.progress.v2';
+
 const OLD_KEY = 'vietlearn.progress.v1';
 
 export type MistakeKind = 'word' | 'sentence' | 'compound';
@@ -33,6 +34,12 @@ type ProgressState = {
 } & Settings & {
   /** 上次学到的主题（首页“继续学习”） */
   lastVisit: { kind: 'phrases' | 'cards'; id: string } | null;
+  /** 收藏的单词 */
+  favWords: string[];
+  /** 闯关：每一关得到的最高星数（1–3），有记录就算通过 */
+  levels: Record<string, number>;
+  /** 经验值 */
+  xp: number;
 };
 
 export type Settings = {
@@ -60,6 +67,9 @@ const initial: ProgressState = {
   drillSize: 20,
   ...defaultSettings,
   lastVisit: null,
+  favWords: [],
+  levels: {},
+  xp: 0,
 };
 
 type Ctx = ProgressState & {
@@ -82,6 +92,10 @@ type Ctx = ProgressState & {
   setGoal: (n: number) => void;
   setDrillSize: (n: number) => void;
   updateSettings: (patch: Partial<Settings>) => void;
+  isFavWord: (vi: string) => boolean;
+  toggleFavWord: (vi: string) => void;
+  /** 通过一关：记录星数（保留最高），加经验值 */
+  finishLevel: (levelId: string, stars: number) => void;
   setLastVisit: (kind: 'phrases' | 'cards', id: string) => void;
   /** 清空学习记录（设置保留） */
   reset: () => void;
@@ -191,6 +205,23 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
     [],
   );
 
+  const toggleFavWord = useCallback((vi: string) => {
+    setState((s) => {
+      const set = new Set(s.favWords);
+      if (set.has(vi)) set.delete(vi);
+      else set.add(vi);
+      return { ...s, favWords: [...set] };
+    });
+  }, []);
+
+  const finishLevel = useCallback((levelId: string, stars: number) => {
+    setState((s) => ({
+      ...s,
+      levels: { ...s.levels, [levelId]: Math.max(s.levels[levelId] ?? 0, stars) },
+      xp: s.xp + 10 + stars * 5,
+    }));
+  }, []);
+
   const tick = useCallback(() => setState((s) => bump(s, dayKey())), []);
 
   const value = useMemo<Ctx>(() => {
@@ -219,6 +250,9 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
       setGoal: (goal) => setState((s) => ({ ...s, goal })),
       setDrillSize: (drillSize) => setState((s) => ({ ...s, drillSize })),
       updateSettings: (patch) => setState((s) => ({ ...s, ...patch })),
+      isFavWord: (vi) => state.favWords.includes(vi),
+      toggleFavWord,
+      finishLevel,
       setLastVisit,
       reset: () =>
         setState((s) => ({
@@ -229,7 +263,7 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
           textScale: s.textScale,
         })),
     };
-  }, [state, loaded, today, setKnown, toggleFavorite, review, recordAnswer, removeMistake, tick, setLastVisit]);
+  }, [state, loaded, today, setKnown, toggleFavorite, review, recordAnswer, removeMistake, tick, setLastVisit, toggleFavWord, finishLevel]);
 
   return <ProgressContext.Provider value={value}>{children}</ProgressContext.Provider>;
 }

@@ -61,8 +61,8 @@ export default function Pronounce() {
           const on = active?.letter === l.letter;
           return (
             <PressableScale key={l.letter} onPress={() => pick(l)} style={[s.cell, { width: cell, height: cell }, on && { backgroundColor: c.primary, borderColor: c.primary }]}>
-              <Text style={[s.letter, on && { color: '#fff' }]}>{l.letter}</Text>
-              <Text style={[s.example, on && { color: 'rgba(255,255,255,0.85)' }]}>{l.vi}</Text>
+              <Text style={[s.letter, on && { color: c.onPrimary }]}>{l.letter}</Text>
+              <Text style={[s.example, on && { color: c.onPrimary, opacity: 0.85 }]}>{l.vi}</Text>
             </PressableScale>
           );
         })}
@@ -127,13 +127,13 @@ const makeStyles = ({ c, shadow }: Theme) => ({
   detailHint: { fontSize: 12, color: c.sub, marginTop: 3, lineHeight: 17 },
   grid: { flexDirection: 'row' as const, flexWrap: 'wrap' as const, gap: 8 },
   cell: {
+    ...shadow,
     borderRadius: radius.md,
     backgroundColor: c.card,
     alignItems: 'center' as const,
     justifyContent: 'center' as const,
     borderWidth: 1,
     borderColor: c.border,
-    ...shadow,
   },
   letter: { fontSize: 20, fontWeight: '700' as const, color: c.text },
   example: { fontSize: 10, color: c.sub, marginTop: 1 },

@@ -1,4 +1,5 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { router } from 'expo-router';
 import React, { useMemo, useState } from 'react';
 import { FlatList, Pressable, View } from 'react-native';
 
@@ -6,6 +7,7 @@ import { Text, TextInput } from '../components/Text';
 import { Chip, Empty, SpeakButton, tap } from '../components/ui';
 import { searchIndex, SearchItem } from '../data';
 import { getTopic } from '../data/topics';
+import { wordHref } from '../lib/links';
 import { speakVi } from '../lib/speech';
 import { plain } from '../lib/utils';
 import { radius, Theme, useStyles, useTheme } from '../theme';
@@ -89,9 +91,17 @@ export default function Search() {
 
 function ResultRow({ item }: { item: SearchItem }) {
   const s = useStyles(makeStyles);
+  const { c } = useTheme();
   const topic = item.topicId ? getTopic(item.topicId) : undefined;
   return (
-    <Pressable onPress={() => { tap(); speakVi(item.vi); }} style={({ pressed }) => [s.row, pressed && { opacity: 0.85 }]}>
+    <Pressable
+      onPress={() => {
+        tap();
+        if (item.kind === '词汇') router.push(wordHref(item.vi));
+        else speakVi(item.vi);
+      }}
+      style={({ pressed }) => [s.row, pressed && { opacity: 0.85 }]}
+    >
       <View style={{ flex: 1 }}>
         <View style={s.tagRow}>
           <Text style={s.tag}>{item.kind}</Text>
@@ -102,6 +112,7 @@ function ResultRow({ item }: { item: SearchItem }) {
         {item.note ? <Text style={s.note}>💡 {item.note}</Text> : null}
       </View>
       <SpeakButton text={item.vi} size={14} />
+      {item.kind === '词汇' && <Ionicons name="chevron-forward" size={15} color={c.faint} style={{ marginLeft: 4 }} />}
     </Pressable>
   );
 }

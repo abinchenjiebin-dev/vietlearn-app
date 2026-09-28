@@ -123,7 +123,7 @@ export function Chip({ label, active, onPress, color }: { label: string; active?
       }}
       style={[s.chip, active && { backgroundColor: col, borderColor: col }]}
     >
-      <Text style={[s.chipText, active && { color: '#fff' }]}>{label}</Text>
+      <Text style={[s.chipText, active && { color: color ? '#fff' : c.onPrimary }]}>{label}</Text>
     </PressableScale>
   );
 }
@@ -146,7 +146,7 @@ export function Button({
   const s = useStyles(makeStyles);
   const { c } = useTheme();
   const bg = { primary: c.primary, ghost: c.card, soft: c.primarySoft, success: c.success, danger: c.danger }[kind];
-  const fg = kind === 'ghost' ? c.text : kind === 'soft' ? c.primary : '#fff';
+  const fg = kind === 'ghost' ? c.text : kind === 'soft' ? c.primary : kind === 'primary' ? c.onPrimary : '#fff';
   return (
     <PressableScale
       disabled={disabled}

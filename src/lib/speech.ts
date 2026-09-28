@@ -41,8 +41,8 @@ export async function speakVi(text: string, slow = false) {
   });
 }
 
-/** 逐词朗读：一个词读完再读下一个，onWord 告诉界面正在读第几个词（-1 表示结束） */
-export async function speakWords(words: string[], onWord: (i: number) => void) {
+/** 逐词（或逐句）朗读：一个读完再读下一个，onWord 告诉界面正在读第几个词（-1 表示结束） */
+export async function speakWords(words: string[], onWord: (i: number) => void, rate = 0.75) {
   if (!voiceChecked) await findVietnameseVoice();
   const run = ++wordRun;
   await Speech.stop();
@@ -53,7 +53,7 @@ export async function speakWords(words: string[], onWord: (i: number) => void) {
     Speech.speak(words[i], {
       language: 'vi-VN',
       voice: viVoiceId,
-      rate: 0.75 * rateScale,
+      rate: rate * rateScale,
       onDone: () => {
         setTimeout(() => next(i + 1), 180);
       },

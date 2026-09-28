@@ -3,6 +3,7 @@ import React, { useMemo, useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 
 import { Text } from '../components/Text';
+import { RoundResult } from '../components/quiz';
 import { Button, buzz, Card, Feedback, PressableScale, ProgressBar, SpeakButton, tap } from '../components/ui';
 import { SentenceItem, sentences, sentenceText } from '../data/sentences';
 import { useProgress } from '../lib/progress';
@@ -12,6 +13,7 @@ import { radius, Theme, useStyles, useTheme } from '../theme';
 
 type Tile = { id: number; text: string };
 
+const ROUND = 10;
 const allTokens = Array.from(new Set(sentences.flatMap((s) => s.tokens)));
 const norm = (s: string) => s.toLowerCase();
 const PROPER = ['Việt Nam', 'Trung Quốc', 'Minh', 'Thành phố Hồ Chí Minh'];
@@ -44,7 +46,12 @@ export default function Sentences() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onlyMistakes]);
 
-  const [order, setOrder] = useState(() => shuffle(pool.map((_, i) => i)));
+  // 每轮最多 10 题，做完显示成绩（不再自动从头循环）
+  const roundLen = Math.min(ROUND, pool.length);
+  const newOrder = () => shuffle(pool.map((_, i) => i)).slice(0, roundLen);
+  const [order, setOrder] = useState(newOrder);
+  const [score, setScore] = useState(0);
+  const [finished, setFinished] = useState(false);
   const [pos, setPos] = useState(0);
   const [tiles, setTiles] = useState(() => makeTiles(pool[order[0]]));
   const [picked, setPicked] = useState<Tile[]>([]);
@@ -57,20 +64,27 @@ export default function Sentences() {
     setPicked([]);
     setResult(null);
     setShowTip(false);
-    let o = order;
-    let p = pos + 1;
-    if (p >= order.length) {
-      o = shuffle(pool.map((_, i) => i));
-      p = 0;
-      setOrder(o);
-    }
-    setPos(p);
-    setTiles(makeTiles(pool[o[p]]));
+    if (pos + 1 >= order.length) return setFinished(true);
+    setPos(pos + 1);
+    setTiles(makeTiles(pool[order[pos + 1]]));
+  };
+
+  const restart = () => {
+    const o = newOrder();
+    setOrder(o);
+    setPos(0);
+    setScore(0);
+    setFinished(false);
+    setPicked([]);
+    setResult(null);
+    setShowTip(false);
+    setTiles(makeTiles(pool[o[0]]));
   };
 
   const check = () => {
     const ok = picked.map((t) => norm(t.text)).join(' ') === item.tokens.map(norm).join(' ');
     setResult(ok ? 'right' : 'wrong');
+    if (ok) setScore((n) => n + 1);
     buzz(ok);
     recordAnswer('sentence', item.zh, ok);
     speakVi(sentenceText(item));
@@ -88,6 +102,8 @@ export default function Sentences() {
     tap();
     setPicked((p) => p.filter((x) => x.id !== t.id));
   };
+
+  if (finished) return <RoundResult score={score} total={order.length} note="答错的句子会放进错题本" onAgain={restart} />;
 
   return (
     <ScrollView contentContainerStyle={{ padding: 16, paddingTop: 8, paddingBottom: 40 }}>
@@ -159,7 +175,7 @@ export default function Sentences() {
 
       <View style={s.buttons}>
         {result ? (
-          <Button label="下一题" icon="arrow-forward" style={{ flex: 1 }} onPress={next} />
+          <Button label={pos + 1 >= order.length ? '查看成绩' : '下一题'} icon="arrow-forward" style={{ flex: 1 }} onPress={next} />
         ) : (
           <>
             <Button label="提示" kind="ghost" icon="bulb-outline" style={{ flex: 1 }} disabled={!item.tip} onPress={() => setShowTip(true)} />
@@ -198,6 +214,7 @@ const makeStyles = ({ c, shadow }: Theme) => ({
   placeholder: { color: c.faint, fontSize: 12, marginLeft: 6 },
   tiles: { flexDirection: 'row' as const, flexWrap: 'wrap' as const, justifyContent: 'center' as const, gap: 8, marginTop: 16 },
   tile: {
+    ...shadow,
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: radius.sm,
@@ -205,7 +222,6 @@ const makeStyles = ({ c, shadow }: Theme) => ({
     borderWidth: 1,
     borderColor: c.border,
     borderBottomWidth: 3,
-    ...shadow,
   },
   tileInAnswer: { borderColor: c.primary, backgroundColor: c.primarySoft },
   tileText: { fontSize: 16, fontWeight: '600' as const, color: c.text },

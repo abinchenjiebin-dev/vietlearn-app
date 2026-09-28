@@ -35,7 +35,7 @@ const pwa = [
   '<meta name="apple-mobile-web-app-capable" content="yes" />',
   '<meta name="mobile-web-app-capable" content="yes" />',
   '<meta name="apple-mobile-web-app-title" content="越南语学堂" />',
-  '<meta name="theme-color" content="#C8102E" />',
+  '<meta name="theme-color" content="#0F9D6B" />',
 ].join('\n    ');
 html = html.replace('</head>', `  ${pwa}\n  </head>`);
 fs.writeFileSync(indexPath, html);
@@ -49,7 +49,7 @@ fs.writeFileSync(
       start_url: './',
       display: 'standalone',
       background_color: '#FAF7F2',
-      theme_color: '#C8102E',
+      theme_color: '#0F9D6B',
       icons: [{ src: 'icon.png', sizes: '1024x1024', type: 'image/png' }],
     },
     null,

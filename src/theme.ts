@@ -3,50 +3,55 @@ import { StyleSheet, useColorScheme } from 'react-native';
 
 import { useSettings } from './lib/progress';
 
-// 配色：越南国旗的红与金为主色，浅色 / 深色两套，跟随系统切换
+// 配色：清爽的绿色为主色，浅色 / 深色两套
 const light = {
-  bg: '#F8F4EE',
+  bg: '#F4F8F5',
   /** 背景渐变的顶部颜色 */
-  bgTop: '#FCEDE5',
+  bgTop: '#E4F3EA',
   tabBar: '#FFFFFF',
   card: '#FFFFFF',
-  cardAlt: '#F0EBE3',
-  text: '#1B1B1F',
-  sub: '#6B6B74',
-  faint: '#A3A3AB',
-  border: '#E6E0D5',
-  primary: '#D7263D',
-  primarySoft: '#FCE9EB',
+  cardAlt: '#EEF4F0',
+  text: '#15201A',
+  sub: '#5E6E65',
+  faint: '#9AA9A0',
+  border: '#DFE9E3',
+  primary: '#0F9D6B',
+  primarySoft: '#E0F4EA',
   onPrimary: '#FFFFFF',
+  /** 首页今日目标卡片的渐变 */
+  heroFrom: '#2BB673',
+  heroTo: '#0B8A5E',
   gold: '#F2A900',
   goldSoft: '#FFF4D6',
   goldText: '#7A5600',
-  success: '#1F9D63',
-  successSoft: '#E2F5EC',
+  success: '#16A34A',
+  successSoft: '#E3F6E8',
   danger: '#E5484D',
   dangerSoft: '#FDE8E8',
-  shadow: '#3B2A1A',
+  shadow: '#16352A',
 };
 
 export type Colors = typeof light;
 
 const dark: Colors = {
-  bg: '#121214',
-  bgTop: '#2A1519',
-  tabBar: '#1E1D22',
-  card: '#1C1C20',
-  cardAlt: '#26262C',
-  text: '#F3F3F5',
-  sub: '#A2A2AC',
-  faint: '#6E6E78',
-  border: '#2E2E35',
-  primary: '#FF5468',
-  primarySoft: '#3A1B21',
-  onPrimary: '#FFFFFF',
+  bg: '#0F1512',
+  bgTop: '#13261C',
+  tabBar: '#18211C',
+  card: '#18211C',
+  cardAlt: '#212C26',
+  text: '#EEF5F1',
+  sub: '#A3B3AA',
+  faint: '#6B7A72',
+  border: '#28342E',
+  primary: '#34D399',
+  primarySoft: '#143427',
+  onPrimary: '#06281B',
+  heroFrom: '#17744C',
+  heroTo: '#0C4A31',
   gold: '#F7C948',
   goldSoft: '#352B12',
   goldText: '#F7D77A',
-  success: '#3DD68C',
+  success: '#4ADE80',
   successSoft: '#12301F',
   danger: '#FF6B6E',
   dangerSoft: '#3A1B1C',
@@ -73,6 +78,8 @@ export function useTheme() {
     const shadow = isDark
       ? { borderWidth: StyleSheet.hairlineWidth, borderColor: c.border }
       : {
+          borderWidth: StyleSheet.hairlineWidth,
+          borderColor: c.border,
           shadowColor: c.shadow,
           shadowOpacity: 0.05,
           shadowRadius: 8,

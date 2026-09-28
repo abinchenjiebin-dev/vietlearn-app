@@ -29,7 +29,7 @@ export default function Settings() {
         <Row icon="flag" color="#E4572E" title="每日目标" sub="每天完成多少次练习算达标">
           <Segment value={p.goal} options={GOALS.map((g) => ({ v: g, label: `${g}` }))} onChange={p.setGoal} />
         </Row>
-        <Row icon="flash" color="#D7263D" title="每日一刷题量" last>
+        <Row icon="flash" color={c.primary} title="每日一刷题量" last>
           <Segment value={p.drillSize} options={DRILL_SIZES.map((n) => ({ v: n, label: `${n}` }))} onChange={p.setDrillSize} />
         </Row>
       </Group>

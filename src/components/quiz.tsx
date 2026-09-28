@@ -1,12 +1,14 @@
 // 答题组件：选择题、拼写、听辨声调（测验、每日一刷、智能复习共用）
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 
 import { Text, TextInput } from './Text';
 import { toneHints, toneNames } from '../data/alphabet';
 import type { Word } from '../data';
 import type { Question } from '../lib/quiz';
+import { wordHref } from '../lib/links';
 import { useSettings } from '../lib/progress';
 import { speakVi } from '../lib/speech';
 import { plain, tidy } from '../lib/utils';
@@ -225,8 +227,34 @@ export function WordLine({ word }: { word: Word }) {
         <Text style={s.fbVi}>{word.vi}</Text>
         <Text style={s.fbSub}>{word.zh}</Text>
         {word.note ? <Text style={s.fbNote}>💡 {word.note}</Text> : null}
+        <Pressable hitSlop={6} onPress={() => router.push(wordHref(word.vi))} style={{ marginTop: 6 }}>
+          <Text style={s.detail}>查看单词详情 ›</Text>
+        </Pressable>
       </View>
       <SpeakButton text={word.vi} />
+    </View>
+  );
+}
+
+/** 一轮结束后的成绩页 */
+export function RoundResult({ score, total, note, onAgain }: { score: number; total: number; note?: string; onAgain: () => void }) {
+  const s = useStyles(makeStyles);
+  const ratio = total ? score / total : 0;
+  const stars = ratio >= 0.9 ? 3 : ratio >= 0.6 ? 2 : ratio > 0 ? 1 : 0;
+  return (
+    <View style={s.result}>
+      <Text style={s.stars}>
+        {'★'.repeat(stars)}
+        <Text style={s.starsOff}>{'★'.repeat(3 - stars)}</Text>
+      </Text>
+      <Text style={s.resultNum}>
+        {score} / {total}
+      </Text>
+      <Text style={s.resultPct}>正确率 {Math.round(ratio * 100)}%</Text>
+      <Text style={s.resultText}>{ratio >= 0.9 ? '太棒了！🎉' : ratio >= 0.6 ? '不错，继续加油！💪' : '多练几次就熟了 🌱'}</Text>
+      {note && (score < total || note.startsWith('🎉')) ? <Text style={s.resultSub}>{note}</Text> : null}
+      <Button label="再来一轮" icon="refresh" onPress={onAgain} style={{ alignSelf: 'stretch', marginTop: 22 }} />
+      <Button label="返回" kind="ghost" onPress={() => router.back()} style={{ alignSelf: 'stretch', marginTop: 8 }} />
     </View>
   );
 }
@@ -264,5 +292,13 @@ const makeStyles = ({ c }: Theme) => ({
   miniToneText: { fontSize: 16, fontWeight: '700' as const, color: c.text },
   fbVi: { fontSize: 19, fontWeight: '800' as const, color: c.text },
   fbSub: { fontSize: 13, color: c.sub, marginTop: 2 },
+  result: { flex: 1, alignItems: 'center' as const, justifyContent: 'center' as const, padding: 32 },
+  stars: { fontSize: 38, color: c.gold, letterSpacing: 4 },
+  starsOff: { color: c.border },
+  resultNum: { ...font.hero, fontSize: 34, color: c.text, marginTop: 8 },
+  resultPct: { fontSize: 13, color: c.sub, marginTop: 4, fontWeight: '600' as const },
+  resultText: { fontSize: 15, fontWeight: '700' as const, color: c.text, marginTop: 8 },
+  resultSub: { fontSize: 12, color: c.sub, marginTop: 4 },
+  detail: { fontSize: 12, color: c.primary, fontWeight: '600' as const },
   fbNote: { fontSize: 11, color: c.goldText, marginTop: 4 },
 });

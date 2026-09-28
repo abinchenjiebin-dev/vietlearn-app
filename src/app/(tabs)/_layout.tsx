@@ -68,8 +68,8 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen name="index" options={tab('今天', 'sunny-outline', 'sunny')} />
-      <Tabs.Screen name="phrases" options={tab('常用语', 'chatbubbles-outline', 'chatbubbles')} />
-      <Tabs.Screen name="vocab" options={tab('词汇', 'albums-outline', 'albums')} />
+      <Tabs.Screen name="learn" options={tab('学习', 'book-outline', 'book')} />
+      <Tabs.Screen name="levels" options={tab('闯关', 'map-outline', 'map')} />
       <Tabs.Screen name="practice" options={tab('练习', 'barbell-outline', 'barbell')} />
       <Tabs.Screen name="pronounce" options={tab('发音', 'mic-outline', 'mic')} />
     </Tabs>

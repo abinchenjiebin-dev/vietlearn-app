@@ -19,7 +19,7 @@ export function DailyDrill() {
     <View style={s.card}>
       <View style={s.head}>
         <View style={s.icon}>
-          <Ionicons name="flash" size={18} color="#fff" />
+          <Ionicons name="flash" size={18} color={c.onPrimary} />
         </View>
         <View style={{ flex: 1 }}>
           <Text style={s.title}>每日一刷</Text>
@@ -37,15 +37,15 @@ export function DailyDrill() {
               style={[s.size, on && { backgroundColor: c.primary, borderColor: c.primary }]}
               accessibilityLabel={`${n} 题`}
             >
-              <Text style={[s.sizeNum, on && { color: '#fff' }]}>{n}</Text>
-              <Text style={[s.sizeUnit, on && { color: 'rgba(255,255,255,0.85)' }]}>题</Text>
+              <Text style={[s.sizeNum, on && { color: c.onPrimary }]}>{n}</Text>
+              <Text style={[s.sizeUnit, on && { color: c.onPrimary, opacity: 0.85 }]}>题</Text>
             </PressableScale>
           );
         })}
       </View>
       <PressableScale onPress={() => { tap(); router.push(`/quiz/mix?count=${drillSize}` as Href); }} style={s.start}>
         <Text style={s.startText}>开始刷 {drillSize} 题</Text>
-        <Ionicons name="arrow-forward" size={15} color="#fff" />
+        <Ionicons name="arrow-forward" size={15} color={c.onPrimary} />
       </PressableScale>
     </View>
   );
@@ -90,5 +90,5 @@ const makeStyles = ({ c, shadow }: Theme) => ({
     paddingVertical: 11,
     marginTop: 10,
   },
-  startText: { color: '#fff', fontSize: 15, fontWeight: '700' as const },
+  startText: { color: c.onPrimary, fontSize: 15, fontWeight: '700' as const },
 });
