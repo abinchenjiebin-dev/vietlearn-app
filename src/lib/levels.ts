@@ -66,7 +66,7 @@ function makeLetter(l: Letter, group: Letter[]): Step {
     speak: l.vi,
     options,
     answer: options.indexOf(l.letter),
-    explain: `${l.vi}（${l.zh}）· ${l.letter}：${l.hint}`,
+    explain: `${l.letter} 念 ${l.say}，例词 ${l.vi}（${l.zh}）· ${l.hint}`,
   };
 }
 

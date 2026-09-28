@@ -24,7 +24,7 @@ for stream in (sys.stdout, sys.stderr):
         pass
 
 ROOT = os.path.dirname(os.path.abspath(__file__))  # 不管从哪里运行，都以本文件所在文件夹为准
-ROUTES = ["/", "/learn", "/levels", "/practice", "/pronounce", "/review", "/mistakes", "/search", "/quiz/meaning", "/compounds", "/sentences", "/topic/greetings", "/cards/food", "/settings", "/level/u2-w1", "/dialogues", "/dialogue/market", "/shadow/food", "/word/xe%20m%C3%A1y"]
+ROUTES = ["/", "/learn", "/levels", "/practice", "/pronounce", "/review", "/mistakes", "/search", "/quiz/meaning", "/compounds", "/sentences", "/topic/greetings", "/cards/food", "/settings", "/videos", "/video/BV1LE411d7WE", "/level/u2-w1", "/dialogues", "/dialogue/market", "/shadow/food", "/word/xe%20m%C3%A1y"]
 EXPECT_IN_BUNDLE = ["Xin chào.", "Cái này bao nhiêu tiền?", "máy bay", "Tôi không hiểu.", "vi-VN"]
 
 

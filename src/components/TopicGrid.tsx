@@ -5,6 +5,7 @@ import { ScrollView, View } from 'react-native';
 
 import { dialogues } from '../data/dialogues';
 import { topics } from '../data/topics';
+import { videos } from '../data/videos';
 import { useProgress } from '../lib/progress';
 import { font, radius, Theme, useStyles, useTheme } from '../theme';
 import { Text } from './Text';
@@ -45,6 +46,17 @@ export function TopicGrid() {
           </View>
         </PressableScale>
       </View>
+
+      <PressableScale onPress={() => open('/videos')} style={s.videoEntry} scaleTo={0.98}>
+        <View style={[s.icon, { backgroundColor: '#FB7299' }]}>
+          <Ionicons name="play" size={16} color="#fff" />
+        </View>
+        <View style={{ flex: 1 }}>
+          <Text style={s.entryTitle}>视频课</Text>
+          <Text style={s.entrySub}>{videos.length} 个老师讲解视频 · 发音口型、入门课、日常口语</Text>
+        </View>
+        <Ionicons name="chevron-forward" size={16} color={c.faint} />
+      </PressableScale>
 
       <Text style={s.head}>{topics.length} 个主题 · 每个主题里有单词、常用语和对话</Text>
       <View style={s.grid}>
@@ -87,7 +99,16 @@ export function TopicGrid() {
 
 const makeStyles = ({ c, shadow }: Theme) => ({
   container: { padding: 16, paddingTop: 8, paddingBottom: 32 },
-  pair: { flexDirection: 'row' as const, gap: 8, marginBottom: 14 },
+  pair: { flexDirection: 'row' as const, gap: 8, marginBottom: 8 },
+  videoEntry: {
+    ...shadow,
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    backgroundColor: c.card,
+    borderRadius: radius.md,
+    padding: 10,
+    marginBottom: 14,
+  },
   entry: {
     ...shadow,
     flex: 1,

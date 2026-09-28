@@ -1,4 +1,4 @@
-// 课程闯关：17 个单元，每个单元若干关，最后一关是单元挑战（👑）。
+// 课程闯关：24 个单元，每个单元若干关，最后一关是单元挑战（👑）。
 import { dialogues } from './dialogues';
 import { getTopic, type Entry } from './topics';
 
@@ -78,6 +78,13 @@ export const units: Unit[] = [
   topicUnit(15, 'work', '会聊工作和学习'),
   topicUnit(16, 'animals', '会说常见动物，知道越南的生肖'),
   topicUnit(17, 'hobbies', '会聊兴趣爱好'),
+  topicUnit(18, 'verbs', '掌握最常用的动词'),
+  topicUnit(19, 'grammar', '会用疑问词，会说“因为……所以……”“如果……就……”'),
+  topicUnit(20, 'places', '会问银行、取款机、景点在哪里'),
+  topicUnit(21, 'home', '会说家里的东西，住民宿不发愁'),
+  topicUnit(22, 'feelings', '会表达心情，会夸人'),
+  topicUnit(23, 'countries', '会聊国家和越南的城市'),
+  topicUnit(24, 'fruits', '会买水果蔬菜'),
 ];
 
 /** 所有关卡按顺序排成一条路线 */

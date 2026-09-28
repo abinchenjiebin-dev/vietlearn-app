@@ -8,6 +8,7 @@ import { Empty, IconName, PressableScale, SpeakButton, tap } from '../../compone
 import { allPhrases, wordByVi, type Word } from '../../data';
 import { dialogues, type Dialogue } from '../../data/dialogues';
 import { getTopic, topics } from '../../data/topics';
+import { videos } from '../../data/videos';
 import { wordHref } from '../../lib/links';
 import { useProgress } from '../../lib/progress';
 import { speakVi, speakWords } from '../../lib/speech';
@@ -49,6 +50,9 @@ export default function TopicScreen() {
       ? [
           { label: '卡片背诵', icon: 'albums', href: `/cards/${fav ? 'fav' : topic.id}` },
           ...(fav ? [] : [{ label: '测验', icon: 'school' as IconName, href: `/quiz/meaning?topic=${topic.id}` }]),
+          ...(!fav && videos.some((v) => v.topicId === topic.id)
+            ? [{ label: '看视频', icon: 'play-circle' as IconName, href: `/videos?topic=${topic.id}` }]
+            : []),
         ]
       : tab === 'phrases' && phrases.length
         ? [{ label: '跟读练习', icon: 'mic', href: `/shadow/${fav ? 'fav' : topic.id}` }]
