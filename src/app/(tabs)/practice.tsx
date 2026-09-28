@@ -4,7 +4,6 @@ import React from 'react';
 import { ScrollView, View } from 'react-native';
 
 import { Text } from '../../components/Text';
-import { DailyDrill } from '../../components/DailyDrill';
 import { IconName, PressableScale, SectionTitle, TabHeader } from '../../components/ui';
 import { allWords } from '../../data';
 import { useProgress } from '../../lib/progress';
@@ -24,8 +23,14 @@ export default function Practice() {
     <View style={{ flex: 1 }}>
       <TabHeader title="练习" />
       <ScrollView contentContainerStyle={s.container}>
-      <DailyDrill />
-      <View style={[s.pair, { marginTop: 12 }]}>
+      {/* 学习统计（从首页挪过来） */}
+      <View style={s.stats}>
+        <Stat n={p.known.length} label="已掌握" />
+        <Stat n={Object.keys(p.srs).length} label="学习中" />
+        <Stat n={mistakes} label="错题" />
+      </View>
+
+      <View style={s.pair}>
         <Big
           title="智能复习"
           sub={due + fresh ? `${due} 待复习 · ${fresh} 新词` : '今天已完成 ✓'}
@@ -42,8 +47,16 @@ export default function Practice() {
         />
       </View>
 
-      <SectionTitle title="词汇测验" sub="每轮 10 题，从全部词汇里出。想练某个主题：词汇 → 选主题 → 测验这个主题" />
+      <SectionTitle title="测验" sub="每轮 10 题，从全部词汇里出。想练某个主题：学习 → 选主题 → 测验" />
       <View style={{ marginTop: 10 }}>
+        {/* 每日一刷的完整卡片在首页，这里只放一行快捷入口 */}
+        <Row
+          title="每日一刷"
+          sub={`所有题型随机混合 · ${p.drillSize} 题（题量在设置里改）`}
+          icon="flash"
+          color="#0F9D6B"
+          onPress={() => router.push(`/quiz/mix?count=${p.drillSize}` as Href)}
+        />
         {quizTypes.map((q) => (
           <Row
             key={q.type}
@@ -57,6 +70,16 @@ export default function Practice() {
       <Row title="组词" sub="用音节拼出合成词，还能学词根" icon="git-merge" color="#6D597A" onPress={() => router.push('/compounds')} />
       <Row title="组句子" sub="点词块排出正确语序" icon="reorder-four" color="#277DA1" onPress={() => router.push('/sentences')} />
       </ScrollView>
+    </View>
+  );
+}
+
+function Stat({ n, label }: { n: number; label: string }) {
+  const s = useStyles(makeStyles);
+  return (
+    <View style={s.stat}>
+      <Text style={s.statNum}>{n}</Text>
+      <Text style={s.statLabel}>{label}</Text>
     </View>
   );
 }
@@ -93,6 +116,10 @@ function Row({ title, sub, icon, color, onPress }: { title: string; sub: string;
 
 const makeStyles = ({ c, shadow }: Theme) => ({
   container: { padding: 16, paddingTop: 8, paddingBottom: 32 },
+  stats: { ...shadow, flexDirection: 'row' as const, backgroundColor: c.card, borderRadius: radius.md, paddingVertical: 10, marginBottom: 8 },
+  stat: { flex: 1, alignItems: 'center' as const },
+  statNum: { fontSize: 18, fontWeight: '800' as const, color: c.text },
+  statLabel: { fontSize: 11, color: c.sub, marginTop: 1 },
   pair: { flexDirection: 'row' as const, gap: 8 },
   big: { flex: 1, backgroundColor: c.card, borderRadius: radius.md, padding: 12, ...shadow },
   bigIcon: {
