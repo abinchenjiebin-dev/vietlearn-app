@@ -122,7 +122,8 @@ export function buildLevel(level: Level): Step[] {
       for (let i = 0; i < words.length; i += 2) {
         const pair = words.slice(i, i + 2);
         pair.forEach((w) => steps.push({ kind: 'teach', word: w }));
-        shuffle(pair).forEach((w) => steps.push(makeChoice(w, i % 4 === 0 ? 'vi2zh' : 'meaning', wordPool)));
+        // 有配图的词出看图选词，其他的出看越南语选中文 / 看中文选越南语
+        shuffle(pair).forEach((w) => steps.push(makeChoice(w, w.emoji ? 'picture' : i % 4 === 0 ? 'vi2zh' : 'meaning', wordPool)));
       }
       shuffle(words)
         .slice(0, 3)

@@ -9,6 +9,7 @@ import { examplesFor, wordByVi, type Word } from '../../data';
 import { getTopic, topics } from '../../data/topics';
 import { wordHref } from '../../lib/links';
 import { useProgress } from '../../lib/progress';
+import { usePreload } from '../../lib/usePreload';
 import { speakVi } from '../../lib/speech';
 import { shuffle } from '../../lib/utils';
 import { radius, Theme, useStyles, useTheme } from '../../theme';
@@ -36,6 +37,7 @@ export default function Cards() {
   const [index, setIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [cards, setCards] = useState(topic.words);
+  usePreload(cards);
   const s = useStyles(makeStyles);
   const turn = useState(() => new Animated.Value(0))[0];
 
@@ -121,6 +123,7 @@ export default function Cards() {
             <Ionicons name="information-circle-outline" size={15} color={c.sub} />
             <Text style={s.detailText}>详情</Text>
           </Pressable>
+          {mode === 'zh2vi' && card.emoji ? <Text style={s.emoji}>{card.emoji}</Text> : null}
           <Text style={[s.front, mode === 'zh2vi' && s.frontZh]}>{front}</Text>
           <Text style={s.hint}>点卡片翻面</Text>
           {mode === 'vi2zh' && (
@@ -136,6 +139,7 @@ export default function Cards() {
             <Ionicons name="information-circle-outline" size={15} color={c.sub} />
             <Text style={s.detailText}>详情</Text>
           </Pressable>
+          {card.emoji ? <Text style={s.emoji}>{card.emoji}</Text> : null}
           <Text style={s.small}>{front}</Text>
           <Text style={[s.back, mode === 'zh2vi' && s.backVi]}>{back}</Text>
           {card.note && <Text style={s.note}>💡 {card.note}</Text>}
@@ -191,7 +195,7 @@ const makeStyles = ({ c, shadow }: Theme) => ({
   shuffleText: { fontSize: 13, color: c.sub, fontWeight: '600' as const },
   progressWrap: { flexDirection: 'row' as const, justifyContent: 'space-between' as const, marginBottom: 6 },
   progressText: { color: c.sub, fontSize: 12 },
-  cardWrap: { marginTop: 14, height: 250 },
+  cardWrap: { marginTop: 14, height: 285 },
   card: {
     position: 'absolute' as const,
     top: 0,
@@ -211,6 +215,7 @@ const makeStyles = ({ c, shadow }: Theme) => ({
   detail: { position: 'absolute' as const, top: 12, left: 12, flexDirection: 'row' as const, alignItems: 'center' as const, gap: 3 },
   detailText: { fontSize: 11, color: c.sub },
   badge: { position: 'absolute' as const, top: 14, right: 14, color: c.success, fontSize: 11, fontWeight: '700' as const },
+  emoji: { fontSize: 52, lineHeight: 64, marginBottom: 4 },
   front: { fontSize: 34, fontWeight: '800' as const, color: c.text, textAlign: 'center' as const, letterSpacing: -0.5 },
   frontZh: { fontSize: 26 },
   hint: { color: c.faint, marginTop: 10, fontSize: 12 },

@@ -48,11 +48,13 @@ export type Settings = {
   /** 单词卡片、复习新词出现时自动朗读 */
   autoPlay: boolean;
   speechRate: 'slow' | 'normal' | 'fast';
+  /** 发音人：女声 / 男声 */
+  voice: 'female' | 'male';
   /** 文字大小倍数 */
   textScale: number;
 };
 
-export const defaultSettings: Settings = { appearance: 'system', autoPlay: true, speechRate: 'normal', textScale: 1 };
+export const defaultSettings: Settings = { appearance: 'system', autoPlay: true, speechRate: 'normal', voice: 'female', textScale: 1 };
 
 const initial: ProgressState = {
   known: [],
@@ -260,6 +262,7 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
           appearance: s.appearance,
           autoPlay: s.autoPlay,
           speechRate: s.speechRate,
+          voice: s.voice,
           textScale: s.textScale,
         })),
     };

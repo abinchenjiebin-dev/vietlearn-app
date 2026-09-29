@@ -51,6 +51,20 @@ export default function Settings() {
             />
           }
         />
+        <Row icon="person" color="#E76F51" title="发音人">
+          <Segment
+            value={p.voice}
+            options={[
+              { v: 'female', label: '女声' },
+              { v: 'male', label: '男声' },
+            ]}
+            onChange={(v) => {
+              p.updateSettings({ voice: v });
+              setTimeout(() => speakVi('Xin chào, rất vui được gặp bạn.'), 50);
+            }}
+          />
+          <Text style={s.hint}>都是北部（河内）标准口音</Text>
+        </Row>
         <Row icon="speedometer" color="#3E7CB1" title="语速" last>
           <Segment
             value={p.speechRate}

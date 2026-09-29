@@ -10,9 +10,12 @@ import { clusters, consonants, Letter, vowels } from '../../data/alphabet';
 import { tones } from '../../data/topics';
 import { videos } from '../../data/videos';
 import { speakVi, speakWords, stopSpeaking } from '../../lib/speech';
+import { usePreload } from '../../lib/usePreload';
 import { font, radius, Theme, useStyles, useTheme } from '../../theme';
 
 const TABS = ['元音', '辅音', '组合辅音'] as const;
+/** 这一页会念到的所有字母、例词和声调 */
+const ALL_SOUNDS = [vowels, consonants, clusters, tones];
 
 export default function Pronounce() {
   const s = useStyles(makeStyles);
@@ -21,6 +24,7 @@ export default function Pronounce() {
   const [active, setActive] = useState<Letter | null>(null);
   // 依次播放时正在读第几个字母（-1 = 没在播放）
   const [playing, setPlaying] = useState(-1);
+  usePreload(ALL_SOUNDS);
   const list = tab === '元音' ? vowels : tab === '辅音' ? consonants : clusters;
   // 一行 6 个格子，按屏幕宽度算（最宽按 600 算，平板上不会太大）
   const { width } = useWindowDimensions();

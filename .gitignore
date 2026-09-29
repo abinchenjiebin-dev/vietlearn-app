@@ -43,3 +43,4 @@ web-build/
 
 # npm cache
 node_cache/
+scripts/audio-texts.json

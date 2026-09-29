@@ -10,6 +10,7 @@ import { examplesFor, relatedCompounds, relatedWords, wordByVi } from '../../dat
 import { getTopic } from '../../data/topics';
 import { wordHref } from '../../lib/links';
 import { useProgress } from '../../lib/progress';
+import { usePreload } from '../../lib/usePreload';
 import { speakVi } from '../../lib/speech';
 import { radius, Theme, useStyles, useTheme } from '../../theme';
 
@@ -17,6 +18,7 @@ import { radius, Theme, useStyles, useTheme } from '../../theme';
 export default function WordDetail() {
   const { vi } = useLocalSearchParams<{ vi: string }>();
   const word = wordByVi.get(vi);
+  usePreload(word);
   const p = useProgress();
   const s = useStyles(makeStyles);
   const { c } = useTheme();
@@ -56,6 +58,7 @@ export default function WordDetail() {
         >
           <Ionicons name={fav ? 'star' : 'star-outline'} size={22} color={fav ? c.gold : c.faint} />
         </Pressable>
+        {word.emoji ? <Text style={s.emoji}>{word.emoji}</Text> : null}
         <Text style={s.vi}>{word.vi}</Text>
         <Text style={s.zh}>{word.zh}</Text>
         {word.note ? <Text style={s.note}>💡 {word.note}</Text> : null}
@@ -139,6 +142,7 @@ const makeStyles = ({ c, shadow }: Theme) => ({
   container: { padding: 16, paddingTop: 8, paddingBottom: 40 },
   hero: { alignItems: 'center' as const, paddingTop: 26, paddingBottom: 14 },
   fav: { position: 'absolute' as const, top: 12, right: 12, padding: 4 },
+  emoji: { fontSize: 60, lineHeight: 74, marginBottom: 4 },
   vi: { fontSize: 34, fontWeight: '800' as const, color: c.text, textAlign: 'center' as const },
   zh: { fontSize: 18, fontWeight: '600' as const, color: c.sub, marginTop: 6, textAlign: 'center' as const },
   note: { fontSize: 12, color: c.goldText, marginTop: 6, textAlign: 'center' as const },

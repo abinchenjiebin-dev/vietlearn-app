@@ -23,6 +23,7 @@ export function TeachCard({ word, onNext }: { word: Word; onNext: () => void }) 
     <View>
       <Text style={s.newTag}>✨ 新内容</Text>
       <Card style={s.teach}>
+        {word.emoji ? <Text style={s.teachEmoji}>{word.emoji}</Text> : null}
         <Text style={s.teachVi}>{word.vi}</Text>
         <Text style={s.teachZh}>{word.zh}</Text>
         {word.note ? <Text style={s.note}>💡 {word.note}</Text> : null}
@@ -191,6 +192,7 @@ export function PickQuestion({ step, onAnswer }: { step: Extract<Step, { kind: '
 const makeStyles = ({ c, shadow }: Theme) => ({
   newTag: { fontSize: 12, fontWeight: '700' as const, color: c.primary, marginBottom: 8 },
   teach: { alignItems: 'center' as const, paddingVertical: 28 },
+  teachEmoji: { fontSize: 64, lineHeight: 78, marginBottom: 6 },
   teachVi: { fontSize: 32, fontWeight: '800' as const, color: c.text, textAlign: 'center' as const },
   teachZh: { fontSize: 18, fontWeight: '600' as const, color: c.sub, marginTop: 8, textAlign: 'center' as const },
   note: { fontSize: 12, color: c.goldText, marginTop: 6, textAlign: 'center' as const },

@@ -8,6 +8,7 @@ import { Text } from '../../components/Text';
 import { Chip, Empty, PressableScale, tap } from '../../components/ui';
 import { dialogues, getDialogue, type Line } from '../../data/dialogues';
 import { useProgress } from '../../lib/progress';
+import { usePreload } from '../../lib/usePreload';
 import { speakVi, speakWords, stopSpeaking } from '../../lib/speech';
 import { radius, Theme, useStyles, useTheme } from '../../theme';
 
@@ -15,6 +16,7 @@ import { radius, Theme, useStyles, useTheme } from '../../theme';
 export default function DialogueScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const d = getDialogue(id) ?? dialogues[0];
+  usePreload(d);
   const s = useStyles(makeStyles);
   const { c } = useTheme();
   const { tick } = useProgress();

@@ -9,6 +9,7 @@ import { Button, Card, Empty, ProgressBar, SpeakButton } from '../../components/
 import { allPhrases } from '../../data';
 import { getTopic, topics } from '../../data/topics';
 import { useProgress } from '../../lib/progress';
+import { usePreload } from '../../lib/usePreload';
 import { speakVi } from '../../lib/speech';
 import { Theme, useStyles, useTheme } from '../../theme';
 
@@ -20,6 +21,7 @@ export default function Shadow() {
   const { c } = useTheme();
   const topic = getTopic(id) ?? topics[0];
   const [list] = useState(() => (id === 'fav' ? allPhrases.filter((p) => favorites.includes(p.vi)) : topic.phrases));
+  usePreload(list);
   const [i, setI] = useState(0);
   const item = list[i];
 

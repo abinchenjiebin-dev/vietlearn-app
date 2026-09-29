@@ -8,6 +8,7 @@ import { Button, buzz, Empty, ProgressBar } from '../../components/ui';
 import { allWords, wordByVi, type Word } from '../../data';
 import { getTopic } from '../../data/topics';
 import { useProgress } from '../../lib/progress';
+import { usePreload } from '../../lib/usePreload';
 import { buildQuiz, mixMeta, Question, QUIZ_LEN, QuizType, quizTypes } from '../../lib/quiz';
 import { speakVi } from '../../lib/speech';
 import { Theme, useStyles } from '../../theme';
@@ -31,6 +32,7 @@ export default function Quiz() {
   }, [source, topic]);
 
   const [questions, setQuestions] = useState<Question[]>(() => buildQuiz(meta.type, pool, size));
+  usePreload(questions);
   const [pos, setPos] = useState(0);
   const [score, setScore] = useState(0);
   const [answered, setAnswered] = useState<boolean | null>(null);

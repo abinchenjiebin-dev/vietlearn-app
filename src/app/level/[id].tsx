@@ -11,6 +11,7 @@ import { Button, buzz, Empty, ProgressBar, tap } from '../../components/ui';
 import { allLevels, getLevel, getUnit } from '../../data/levels';
 import { buildLevel, HEARTS, isGraded, starsFor, stepWord, type Step } from '../../lib/levels';
 import { useProgress } from '../../lib/progress';
+import { usePreload } from '../../lib/usePreload';
 import { font, radius, Theme, useStyles, useTheme } from '../../theme';
 
 /** 闯关：一步步做完，3 颗心用完就失败 */
@@ -23,6 +24,7 @@ export default function LevelScreen() {
   const insets = useSafeAreaInsets();
 
   const [steps, setSteps] = useState<Step[]>(() => (level ? buildLevel(level) : []));
+  usePreload(steps);
   const [pos, setPos] = useState(0);
   const [hearts, setHearts] = useState(HEARTS);
   const [mistakes, setMistakes] = useState(0);

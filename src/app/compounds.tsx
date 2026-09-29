@@ -7,6 +7,7 @@ import { RoundResult } from '../components/quiz';
 import { Button, buzz, Card, Chip, Feedback, PressableScale, SpeakButton, tap } from '../components/ui';
 import { allCompounds, allSyllables, Compound, rootGroups } from '../data/compounds';
 import { useProgress } from '../lib/progress';
+import { usePreload } from '../lib/usePreload';
 import { speakVi } from '../lib/speech';
 import { pickRandom, shuffle } from '../lib/utils';
 import { font, radius, Theme, useStyles, useTheme } from '../theme';
@@ -86,6 +87,7 @@ function Quiz({ onlyMistakes }: { onlyMistakes: boolean }) {
     // 只在进入时取一次错题
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onlyMistakes]);
+  usePreload(pool);
 
   const [question, setQuestion] = useState(() => makeQuestion(pool));
   const [picked, setPicked] = useState<Tile[]>([]);

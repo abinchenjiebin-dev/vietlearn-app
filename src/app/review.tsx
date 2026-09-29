@@ -8,6 +8,7 @@ import { Button, buzz, Card, Empty, ProgressBar, SpeakButton, tap } from '../com
 import { allWords, wordByVi, type Word } from '../data';
 import { getTopic } from '../data/topics';
 import { useProgress } from '../lib/progress';
+import { usePreload } from '../lib/usePreload';
 import { makeAny, type Question } from '../lib/quiz';
 import { speakVi } from '../lib/speech';
 import { NEW_PER_DAY, previewInterval } from '../lib/srs';
@@ -45,6 +46,7 @@ export default function Review() {
   }, [p.loaded]);
 
   const queue = base && [...base, ...extra];
+  usePreload(base);
   const total = queue?.length ?? 0;
   const item = queue?.[done];
 

@@ -43,9 +43,16 @@ export function Choice({ q, onAnswer }: { q: Extract<Question, { kind: 'choice' 
   return (
     <View>
       <Card style={s.prompt}>
+        {type === 'picture' && (
+          <>
+            <Text style={s.label}>看图，这个用越南语怎么说？</Text>
+            <Text style={s.picture}>{q.word.emoji}</Text>
+          </>
+        )}
         {type === 'meaning' && (
           <>
             <Text style={s.label}>这个用越南语怎么说？</Text>
+            {q.word.emoji ? <Text style={s.emojiSmall}>{q.word.emoji}</Text> : null}
             <Text style={s.big}>{q.word.zh}</Text>
           </>
         )}
@@ -263,6 +270,8 @@ const makeStyles = ({ c }: Theme) => ({
   prompt: { alignItems: 'center' as const, paddingVertical: 20, marginBottom: 12 },
   label: { color: c.sub, fontSize: 12 },
   big: { ...font.hero, fontSize: 26, color: c.text, marginTop: 8, textAlign: 'center' as const },
+  picture: { fontSize: 72, lineHeight: 88, marginTop: 6, textAlign: 'center' as const },
+  emojiSmall: { fontSize: 30, marginTop: 6 },
   bigSpeak: {
     width: 68,
     height: 68,

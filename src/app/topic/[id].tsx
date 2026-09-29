@@ -11,6 +11,7 @@ import { getTopic, topics } from '../../data/topics';
 import { videos } from '../../data/videos';
 import { wordHref } from '../../lib/links';
 import { useProgress } from '../../lib/progress';
+import { usePreload } from '../../lib/usePreload';
 import { speakVi, speakWords } from '../../lib/speech';
 import { radius, Theme, useStyles, useTheme } from '../../theme';
 
@@ -21,6 +22,7 @@ export default function TopicScreen() {
   const { id, tab: initialTab } = useLocalSearchParams<{ id: string; tab?: Tab }>();
   const fav = id === 'fav';
   const topic = getTopic(id) ?? topics[0];
+  usePreload(topic);
   const { favorites, favWords, isKnown, setLastVisit } = useProgress();
   const s = useStyles(makeStyles);
   const { c } = useTheme();
@@ -149,6 +151,9 @@ function WordRow({ word }: { word: Word }) {
   const fav = isFavWord(word.vi);
   return (
     <Pressable onPress={() => { tap(); router.push(wordHref(word.vi)); }} style={({ pressed }) => [s.wordRow, pressed && { opacity: 0.85 }]}>
+      <View style={s.pic}>
+        {word.emoji ? <Text style={s.picEmoji}>{word.emoji}</Text> : <Text style={s.picLetter}>{word.vi.charAt(0).toUpperCase()}</Text>}
+      </View>
       <View style={{ flex: 1 }}>
         <Text style={s.vi}>
           {word.vi} {isKnown(word.vi) ? <Text style={{ color: c.success, fontSize: 13 }}>✓</Text> : null}
@@ -243,6 +248,17 @@ const makeStyles = ({ c, shadow }: Theme) => ({
   },
   actionText: { fontSize: 13, fontWeight: '700' as const, color: c.primary },
   hint: { fontSize: 11, color: c.faint, marginTop: 10, marginBottom: 8 },
+  pic: {
+    width: 38,
+    height: 38,
+    borderRadius: 10,
+    backgroundColor: c.cardAlt,
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+    marginRight: 10,
+  },
+  picEmoji: { fontSize: 22 },
+  picLetter: { fontSize: 16, fontWeight: '700' as const, color: c.faint },
   wordRow: {
     ...shadow,
     flexDirection: 'row' as const,

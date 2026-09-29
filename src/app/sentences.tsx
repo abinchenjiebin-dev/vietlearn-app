@@ -7,6 +7,7 @@ import { RoundResult } from '../components/quiz';
 import { Button, buzz, Card, Feedback, PressableScale, ProgressBar, SpeakButton, tap } from '../components/ui';
 import { SentenceItem, sentences, sentenceText } from '../data/sentences';
 import { useProgress } from '../lib/progress';
+import { usePreload } from '../lib/usePreload';
 import { speakVi } from '../lib/speech';
 import { pickRandom, shuffle } from '../lib/utils';
 import { radius, Theme, useStyles, useTheme } from '../theme';
@@ -45,6 +46,7 @@ export default function Sentences() {
     // 只在进入时取一次错题
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onlyMistakes]);
+  usePreload(pool);
 
   // 每轮最多 10 题，做完显示成绩（不再自动从头循环）
   const roundLen = Math.min(ROUND, pool.length);

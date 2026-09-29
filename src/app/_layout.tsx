@@ -12,7 +12,7 @@ import { Platform, View } from 'react-native';
 import { AppBackground } from '../components/Art';
 import { FONT } from '../components/Text';
 import { ProgressProvider, useProgress } from '../lib/progress';
-import { setSpeechRate } from '../lib/speech';
+import { setSpeechRate, setVoice } from '../lib/speech';
 import { useTheme } from '../theme';
 
 // 网页版：字体文件本身已经是粗体，不让浏览器再额外“加粗”一遍
@@ -41,7 +41,7 @@ export default function RootLayout() {
 
 function Root() {
   const { c, isDark } = useTheme();
-  const { speechRate } = useProgress();
+  const { speechRate, voice } = useProgress();
   const base = isDark ? DarkTheme : DefaultTheme;
   const navTheme = {
     ...base,
@@ -49,6 +49,7 @@ function Root() {
   };
 
   useEffect(() => setSpeechRate(speechRate), [speechRate]);
+  useEffect(() => setVoice(voice), [voice]);
 
   return (
     <ThemeProvider value={navTheme}>
