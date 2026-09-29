@@ -40,6 +40,8 @@ const pwa = [
 html = html.replace('</head>', `  ${pwa}\n  </head>`);
 fs.writeFileSync(indexPath, html);
 fs.copyFileSync(path.join(root, 'assets/icon.png'), path.join(out, 'icon.png'));
+// 安卓 Chrome 要 192 和 512 两种尺寸才会提示“安装到桌面”（由 assets/icon.png 缩小而来）
+for (const n of [192, 512]) fs.copyFileSync(path.join(root, `assets/pwa/icon-${n}.png`), path.join(out, `icon-${n}.png`));
 fs.writeFileSync(
   path.join(out, 'manifest.json'),
   JSON.stringify(
@@ -48,9 +50,13 @@ fs.writeFileSync(
       short_name: '越南语学堂',
       start_url: './',
       display: 'standalone',
-      background_color: '#FAF7F2',
+      background_color: '#F4F8F5',
       theme_color: '#0F9D6B',
-      icons: [{ src: 'icon.png', sizes: '1024x1024', type: 'image/png' }],
+      icons: [
+        { src: 'icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+        { src: 'icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+        { src: 'icon.png', sizes: '1024x1024', type: 'image/png', purpose: 'any' },
+      ],
     },
     null,
     2,
