@@ -196,10 +196,10 @@ export function Tone({ q, onAnswer }: { q: Extract<Question, { kind: 'tone' }>; 
       </Card>
       <View style={s.toneGrid}>
         {q.options.map((o, i) => (
-          <View key={o} style={{ width: '48.5%' }}>
+          <View key={o.vi} style={{ width: '48.5%' }}>
             <OptionButton
-              label={o}
-              sub={`${toneNames[i]} ${toneHints[i]}`}
+              label={o.vi}
+              sub={`${toneNames[o.tone]} ${toneHints[o.tone]}`}
               big
               state={state(i)}
               onPress={() => {
@@ -211,12 +211,14 @@ export function Tone({ q, onAnswer }: { q: Extract<Question, { kind: 'tone' }>; 
         ))}
       </View>
       {picked !== null && (
-        <Feedback ok={picked === q.answer} title={picked === q.answer ? '耳朵真灵！' : `听到的是 ${q.syllable}（${toneNames[q.answer]}）`}>
-          <Text style={s.fbSub}>点选项可以对比着听一听 👇</Text>
+        <Feedback ok={picked === q.answer} title={picked === q.answer ? '耳朵真灵！' : `听到的是 ${q.syllable}（${toneNames[q.options[q.answer].tone]}）`}>
+          <Text style={s.fbSub}>声调不同，意思完全不同。点一点对比着听 👇</Text>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 8 }}>
             {q.options.map((o) => (
-              <PressableScale key={o} onPress={() => speakVi(o)} style={s.miniTone}>
-                <Text style={s.miniToneText}>{o}</Text>
+              <PressableScale key={o.vi} onPress={() => speakVi(o.vi)} style={s.miniTone}>
+                <Text style={s.miniToneText}>
+                  {o.vi} <Text style={s.miniToneZh}>{o.zh}</Text>
+                </Text>
               </PressableScale>
             ))}
           </View>
@@ -299,6 +301,7 @@ const makeStyles = ({ c }: Theme) => ({
   toneGrid: { flexDirection: 'row' as const, flexWrap: 'wrap' as const, justifyContent: 'space-between' as const },
   miniTone: { backgroundColor: c.card, borderRadius: radius.sm, paddingHorizontal: 12, paddingVertical: 6 },
   miniToneText: { fontSize: 16, fontWeight: '700' as const, color: c.text },
+  miniToneZh: { fontSize: 12, fontWeight: '400' as const, color: c.sub },
   fbVi: { fontSize: 19, fontWeight: '800' as const, color: c.text },
   fbSub: { fontSize: 13, color: c.sub, marginTop: 2 },
   result: { flex: 1, alignItems: 'center' as const, justifyContent: 'center' as const, padding: 32 },

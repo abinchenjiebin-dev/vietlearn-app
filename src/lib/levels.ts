@@ -108,13 +108,13 @@ export function buildLevel(level: Level): Step[] {
 
   switch (level.kind) {
     case 'tones':
-      return [...[0, 1, 2, 3, 4, 5].map((index) => ({ kind: 'teachTone' as const, index })), ...Array.from({ length: 6 }, makeTone)];
+      return [...[0, 1, 2, 3, 4, 5].map((index) => ({ kind: 'teachTone' as const, index })), ...Array.from({ length: 6 }, () => makeTone(true))];
     case 'letters': {
       const picks = [...pickRandom(consonants, 5).map((l) => makeLetter(l, consonants)), ...pickRandom(clusters, 4).map((l) => makeLetter(l, clusters))];
       return shuffle(picks);
     }
     case 'toneBoss':
-      return Array.from({ length: 10 }, makeTone);
+      return Array.from({ length: 10 }, () => makeTone());
     case 'words': {
       // 教两个词 → 马上各考一题，最后再复习两题
       const words: Word[] = (level.words ?? []).map((w) => ({ ...w, topicId: topic!.id }));

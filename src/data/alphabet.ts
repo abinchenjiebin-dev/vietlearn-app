@@ -61,17 +61,84 @@ export const clusters: Letter[] = [
   { letter: 'tr', say: 'trờ', name: 'trờ', vi: 'trà', zh: '茶', hint: '北方读“知”，南方卷舌' },
 ];
 
-// 听辨声调练习用的音节：单个元音，声调符号直接加在元音上
-const MARKS = ['', '̀', '́', '̉', '̃', '̣'];
+// 听辨声调：声调名称顺序 = 平、玄、锐、问、跌、重（下面 tone 字段就是这个序号）
 export const toneNames = ['平声', '玄声', '锐声', '问声', '跌声', '重声'];
 export const toneHints = ['平', '降 ↘', '升 ↗', '降升 ↘↗', '断升 ↗', '短促 ↓'];
 
-const bases = ['ma', 'ba', 'la', 'ca', 'na', 'ta', 'bo', 'co', 'to', 'mi', 'ti', 'bu', 'tu', 'me', 'be', 'nho'];
+export type ToneWord = { vi: string; tone: number; zh: string };
 
-/** 一个音节的 6 个声调写法 */
-export function toneSet(base: string): string[] {
-  const i = base.search(/[aeiouy][^aeiouy]*$/);
-  return MARKS.map((m) => (base.slice(0, i + 1) + m + base.slice(i + 1)).normalize('NFC'));
-}
-
-export const toneBases = bases;
+/**
+ * 听辨声调的题库：每组是同一个音节配不同声调的【真实常用词】，意思完全不同。
+ * 不用编出来的音节——母语者也没听过，录音念出来也不自然。
+ */
+export const toneGroups: ToneWord[][] = [
+  [
+    { vi: 'ma', tone: 0, zh: '鬼' },
+    { vi: 'mà', tone: 1, zh: '但是' },
+    { vi: 'má', tone: 2, zh: '脸颊；妈妈（南方）' },
+    { vi: 'mả', tone: 3, zh: '坟墓' },
+    { vi: 'mã', tone: 4, zh: '马；代码' },
+    { vi: 'mạ', tone: 5, zh: '秧苗' },
+  ],
+  [
+    { vi: 'hai', tone: 0, zh: '二' },
+    { vi: 'hài', tone: 1, zh: '滑稽；喜剧' },
+    { vi: 'hái', tone: 2, zh: '摘' },
+    { vi: 'hải', tone: 3, zh: '海' },
+    { vi: 'hãi', tone: 4, zh: '害怕' },
+    { vi: 'hại', tone: 5, zh: '伤害' },
+  ],
+  [
+    { vi: 'bao', tone: 0, zh: '袋子' },
+    { vi: 'bào', tone: 1, zh: '刨子' },
+    { vi: 'báo', tone: 2, zh: '报纸' },
+    { vi: 'bảo', tone: 3, zh: '告诉' },
+    { vi: 'bão', tone: 4, zh: '台风' },
+    { vi: 'bạo', tone: 5, zh: '大胆' },
+  ],
+  [
+    { vi: 'ba', tone: 0, zh: '三' },
+    { vi: 'bà', tone: 1, zh: '奶奶' },
+    { vi: 'bá', tone: 2, zh: '伯（伯爵）' },
+    { vi: 'bả', tone: 3, zh: '诱饵' },
+    { vi: 'bã', tone: 4, zh: '渣滓' },
+  ],
+  [
+    { vi: 'mai', tone: 0, zh: '明天' },
+    { vi: 'mài', tone: 1, zh: '磨' },
+    { vi: 'mái', tone: 2, zh: '屋顶' },
+    { vi: 'mải', tone: 3, zh: '专心' },
+    { vi: 'mãi', tone: 4, zh: '永远' },
+  ],
+  [
+    { vi: 'co', tone: 0, zh: '收缩' },
+    { vi: 'cò', tone: 1, zh: '白鹭' },
+    { vi: 'có', tone: 2, zh: '有' },
+    { vi: 'cỏ', tone: 3, zh: '草' },
+    { vi: 'cọ', tone: 5, zh: '刷子' },
+  ],
+  [
+    { vi: 'ca', tone: 0, zh: '唱歌；杯子' },
+    { vi: 'cà', tone: 1, zh: '茄子' },
+    { vi: 'cá', tone: 2, zh: '鱼' },
+    { vi: 'cả', tone: 3, zh: '全部' },
+  ],
+  [
+    { vi: 'la', tone: 0, zh: '喊叫' },
+    { vi: 'là', tone: 1, zh: '是' },
+    { vi: 'lá', tone: 2, zh: '叶子' },
+    { vi: 'lạ', tone: 5, zh: '奇怪' },
+  ],
+  [
+    { vi: 'me', tone: 0, zh: '罗望子' },
+    { vi: 'mè', tone: 1, zh: '芝麻' },
+    { vi: 'mẻ', tone: 3, zh: '一批' },
+    { vi: 'mẹ', tone: 5, zh: '妈妈' },
+  ],
+  [
+    { vi: 'bò', tone: 1, zh: '牛' },
+    { vi: 'bó', tone: 2, zh: '捆' },
+    { vi: 'bỏ', tone: 3, zh: '丢掉' },
+    { vi: 'bọ', tone: 5, zh: '虫子' },
+  ],
+];

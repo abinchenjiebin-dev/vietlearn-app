@@ -2,7 +2,7 @@
 //   npx tsx scripts/audio-texts.ts > scripts/audio-texts.json
 
 import { allPhrases, allWords } from '../src/data';
-import { clusters, consonants, toneBases, toneSet, vowels } from '../src/data/alphabet';
+import { clusters, consonants, toneGroups, vowels } from '../src/data/alphabet';
 import { allSyllables, rootGroups } from '../src/data/compounds';
 import { dialogues } from '../src/data/dialogues';
 import { sentences, sentenceText } from '../src/data/sentences';
@@ -22,7 +22,7 @@ allWords.forEach((w) => { add(w.vi); addWords(w.vi); });
 allPhrases.forEach((p) => { add(p.vi); add(p.vi.replace(/[.,!?]/g, '')); addWords(p.vi); });
 [...vowels, ...consonants, ...clusters].forEach((l) => { add(l.say); add(l.name); add(l.vi); });
 tones.forEach((t) => add(t.vi));
-toneBases.forEach((b) => toneSet(b).forEach(add));
+toneGroups.flat().forEach((w) => add(w.vi));
 allSyllables.forEach(add);
 rootGroups.forEach((g) => { add(g.root); g.compounds.forEach((c) => { add(c.vi); c.parts.forEach((p) => add(p.vi)); }); });
 dialogues.forEach((d) => d.lines.forEach((l) => { add(l.vi); addWords(l.vi); }));

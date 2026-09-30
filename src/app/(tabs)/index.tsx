@@ -5,6 +5,7 @@ import { Platform, Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { GradientFill, Lantern } from '../../components/Art';
+import { InstallHint } from '../../components/InstallHint';
 import { Text } from '../../components/Text';
 import { Card, Chip, IconName, PressableScale, ProgressRing, tap } from '../../components/ui';
 import { allWords } from '../../data';
@@ -89,6 +90,8 @@ export default function Home() {
             </Text>
           </Card>
         )}
+
+        <InstallHint />
 
         {/* 今日目标 + 本周打卡 */}
         <View style={s.hero}>

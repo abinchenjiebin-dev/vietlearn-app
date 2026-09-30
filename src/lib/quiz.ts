@@ -1,6 +1,6 @@
 // 词汇测验的出题逻辑
 import type { IconName } from '../components/ui';
-import { toneBases, toneSet } from '../data/alphabet';
+import { toneGroups, type ToneWord } from '../data/alphabet';
 import { allWords, type Word } from '../data';
 import { plain, shuffle } from './utils';
 
@@ -26,7 +26,7 @@ export type Option = { label: string; correct: boolean };
 export type Question =
   | { kind: 'choice'; mode: ChoiceMode; word: Word; options: Option[] }
   | { kind: 'spell'; word: Word }
-  | { kind: 'tone'; syllable: string; options: string[]; answer: number };
+  | { kind: 'tone'; syllable: string; options: ToneWord[]; answer: number };
 
 export const QUIZ_LEN = 10;
 
@@ -65,11 +65,21 @@ export function makeChoice(word: Word, mode: ChoiceMode, pool: Word[] = allWords
   };
 }
 
-export function makeTone(): Question {
-  const base = toneBases[Math.floor(Math.random() * toneBases.length)];
-  const options = toneSet(base);
-  const answer = Math.floor(Math.random() * 6);
-  return { kind: 'tone', syllable: options[answer], options, answer };
+/**
+ * 听辨声调：从一组“同音节不同声调”的真实词里出 4 个选项。
+ * easy = 入门关：问声和跌声不同时出现（这两个最难分，南方人自己都读成一样）
+ */
+export function makeTone(easy = false): Question {
+  const group = toneGroups[Math.floor(Math.random() * toneGroups.length)];
+  const word = group[Math.floor(Math.random() * group.length)];
+  const others = shuffle(group.filter((w) => w !== word)).filter((w, i, arr) => {
+    if (!easy) return true;
+    const clash = (a: number, b: number) => (a === 3 && b === 4) || (a === 4 && b === 3);
+    return !clash(w.tone, word.tone) && !arr.slice(0, i).some((x) => clash(x.tone, w.tone));
+  });
+  // 选项按声调顺序排，位置固定，方便对照
+  const options = [word, ...others.slice(0, 3)].sort((a, b) => a.tone - b.tone);
+  return { kind: 'tone', syllable: word.vi, options, answer: options.indexOf(word) };
 }
 
 /** 给一个词随机出一道题（每日一刷、智能复习用） */
@@ -81,7 +91,7 @@ export function makeAny(word: Word, pool: Word[] = allWords): Question {
 }
 
 export function buildQuiz(type: QuizType, pool: Word[], n = QUIZ_LEN): Question[] {
-  if (type === 'tone') return Array.from({ length: n }, makeTone);
+  if (type === 'tone') return Array.from({ length: n }, () => makeTone());
   if (type === 'spell') {
     const easy = pool.filter(spellable);
     return shuffle(easy.length >= 3 ? easy : pool)

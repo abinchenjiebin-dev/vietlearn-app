@@ -50,6 +50,12 @@ async def main():
 asyncio.run(main())
 
 ok = {k: name(k) for k in texts if os.path.exists(os.path.join(OUT, name(k)))}
+# 删掉文本表里已经没有的旧录音（比如改掉的题目），不然会一直占着空间
+keep = set(ok.values())
+old = [f for f in os.listdir(OUT) if f.endswith('.mp3') and f not in keep]
+for f in old:
+    os.remove(os.path.join(OUT, f))
+print('removed', len(old), 'unused files')
 lines = [
     f'// 自动生成（scripts/gen-audio.py），不要手改。越南语录音：Edge 神经语音 {VOICE}（北部口音）',
     f'export const {"audioFilesMale" if MALE else "audioFiles"}: Record<string, number> = {{',

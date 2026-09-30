@@ -1,6 +1,6 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router, type Href } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ScrollView, View } from 'react-native';
 
 import { Text } from '../../components/Text';
@@ -32,10 +32,25 @@ export default function Levels() {
   const passed = allLevels.filter((l) => p.levels[l.id]).length;
   const stars = Object.values(p.levels).reduce((n, x) => n + x, 0);
 
+  // 打开地图时自动滚到当前关卡（不然学到后面几个单元，看起来像是又从第一关开始）。
+  // 记下每个单元、每个关卡的位置；进度读取完、排版稳定后再滚，过了新关卡回来也会重新滚
+  const scroll = useRef<ScrollView>(null);
+  const unitY = useRef<Record<string, number>>({});
+  const nodeY = useRef<Record<string, number>>({});
+  useEffect(() => {
+    if (!p.loaded || !cur) return;
+    const t = setTimeout(() => {
+      const uy = unitY.current[cur.unitId];
+      const ny = nodeY.current[cur.id];
+      if (uy !== undefined && ny !== undefined) scroll.current?.scrollTo({ y: Math.max(0, uy + ny - 180), animated: false });
+    }, 300);
+    return () => clearTimeout(t);
+  }, [p.loaded, cur]);
+
   return (
     <View style={{ flex: 1 }}>
       <TabHeader title="闯关" />
-      <ScrollView contentContainerStyle={s.container}>
+      <ScrollView ref={scroll} contentContainerStyle={s.container}>
       <View style={s.summary}>
         <Stat icon="flag" color={c.primary} value={`${passed}/${allLevels.length}`} label="关卡" />
         <Stat icon="star" color={c.gold} value={`${stars}`} label="星星" />
@@ -45,7 +60,13 @@ export default function Levels() {
       {units.map((u) => {
         const done = u.levels.every((l) => p.levels[l.id]);
         return (
-          <View key={u.id} style={{ marginTop: 18 }}>
+          <View
+            key={u.id}
+            style={{ marginTop: 18 }}
+            onLayout={(e) => {
+              unitY.current[u.id] = e.nativeEvent.layout.y;
+            }}
+          >
             <View style={[s.unit, { backgroundColor: u.color }]}>
               <Text style={s.unitEmoji}>{u.emoji}</Text>
               <View style={{ flex: 1 }}>
@@ -61,7 +82,13 @@ export default function Levels() {
               const isCur = cur?.id === l.id;
               const boss = l.kind === 'boss' || l.kind === 'toneBoss';
               return (
-                <View key={l.id} style={[s.nodeRow, { transform: [{ translateX: OFFSETS[i % OFFSETS.length] }] }]}>
+                <View
+                  key={l.id}
+                  style={[s.nodeRow, { transform: [{ translateX: OFFSETS[i % OFFSETS.length] }] }]}
+                  onLayout={(e) => {
+                    nodeY.current[l.id] = e.nativeEvent.layout.y;
+                  }}
+                >
                   {isCur && (
                     <View style={s.bubble}>
                       <Text style={s.bubbleText}>开始</Text>
